@@ -1,0 +1,17 @@
+{
+  "Settings": {
+    "Resamples": 2000,
+    "Seed": 1,
+    "Interval Level": 0.95
+  },
+  "Mean Difference": 1.0458125,
+  "Group-Level": {
+    "Interval Low": -0.05609156249999996,
+    "Interval High": 2.65
+  },
+  "Case-Level": {
+    "Interval Low": 0.20056937500000002,
+    "Interval High": 2.069792031249999
+  },
+  "Verdict": "Not Established"
+}
