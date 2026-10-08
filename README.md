@@ -9,6 +9,7 @@ The tasks were set by an AI tutor (Claude). I wrote all the code here without AI
 | Rep | Mechanism | Level | Status | Checked against |
 | --- | --- | --- | --- | --- |
 | `F04D-L1` | Paired bootstrap by group | 1 | complete | `scipy.stats.bootstrap` |
+| `F04A-L1` | Standardization fitted on the training set; group-split check | 1 | complete | `sklearn.preprocessing.StandardScaler` |
 
 ## Experiments
 

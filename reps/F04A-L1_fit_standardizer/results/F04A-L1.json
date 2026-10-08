@@ -1,0 +1,47 @@
+{
+  "Training Mean": [
+    4.0,
+    0.48699999999999993
+  ],
+  "Training Std Dev": [
+    2.6076809620810595,
+    0.26264234235933853
+  ],
+  "f13a Raw Features": [
+    6.0,
+    0.8
+  ],
+  "f13a Standardized Features": [
+    0.7669649888473704,
+    1.1917347263517926
+  ],
+  "Standardized Training Set Mean": [
+    2.2204460492503132e-17,
+    2.886579864025407e-16
+  ],
+  "Standardized Training Set Std Dev": [
+    1.0,
+    1.0000000000000002
+  ],
+  "Standardized Validation Set Mean": [
+    0.0,
+    0.22400551565611457
+  ],
+  "Standardized Validation Set Std Dev": [
+    0.8856148855400953,
+    0.8324993531544332
+  ],
+  "Data Leakage Example Mean": [
+    4.0,
+    0.5090625
+  ],
+  "Data Leakage Example Std Dev": [
+    2.5,
+    0.24870111799859285
+  ],
+  "Largest Change from Data Leakage": 0.1670402459162661,
+  "Overlap Check on Assigned Partitions": [],
+  "Overlap Check with forced group split": [
+    "f13"
+  ]
+}
