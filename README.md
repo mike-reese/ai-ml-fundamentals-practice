@@ -10,6 +10,7 @@ The tasks were set by an AI tutor (Claude). I wrote all the code here without AI
 | --- | --- | --- | --- | --- |
 | `F04D-L1` | Paired bootstrap by group | 1 | complete | `scipy.stats.bootstrap` |
 | `F04A-L1` | Standardization fitted on the training set; group-split check | 1 | complete | `sklearn.preprocessing.StandardScaler` |
+| `F04B-L1` | Confusion matrix, per-class precision, recall, F1, macro-F1 and log loss | 1 | complete | `sklearn.metrics.precision_recall_fscore_support`, `f1_score`, `log_loss` |
 
 ## Experiments
 

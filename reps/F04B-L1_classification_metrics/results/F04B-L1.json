@@ -1,0 +1,201 @@
+{
+  "Decision Threshold": 0.5,
+  "Classifier Decisions": [
+    {
+      "Case ID": "f13a",
+      "Label": 1,
+      "Probability": 0.58518,
+      "Predicted Class": 1,
+      "Outcome": "TP"
+    },
+    {
+      "Case ID": "f13b",
+      "Label": 1,
+      "Probability": 0.453601,
+      "Predicted Class": 0,
+      "Outcome": "FN"
+    },
+    {
+      "Case ID": "f14a",
+      "Label": 1,
+      "Probability": 0.842832,
+      "Predicted Class": 1,
+      "Outcome": "TP"
+    },
+    {
+      "Case ID": "f14b",
+      "Label": 1,
+      "Probability": 0.88421,
+      "Predicted Class": 1,
+      "Outcome": "TP"
+    },
+    {
+      "Case ID": "f15a",
+      "Label": 0,
+      "Probability": 0.800398,
+      "Predicted Class": 1,
+      "Outcome": "FP"
+    },
+    {
+      "Case ID": "f15b",
+      "Label": 0,
+      "Probability": 0.850974,
+      "Predicted Class": 1,
+      "Outcome": "FP"
+    },
+    {
+      "Case ID": "f16a",
+      "Label": 0,
+      "Probability": 0.000123,
+      "Predicted Class": 0,
+      "Outcome": "TN"
+    },
+    {
+      "Case ID": "f16b",
+      "Label": 0,
+      "Probability": 8.6e-05,
+      "Predicted Class": 0,
+      "Outcome": "TN"
+    },
+    {
+      "Case ID": "f17a",
+      "Label": 0,
+      "Probability": 0.007693,
+      "Predicted Class": 0,
+      "Outcome": "TN"
+    },
+    {
+      "Case ID": "f17b",
+      "Label": 0,
+      "Probability": 0.010919,
+      "Predicted Class": 0,
+      "Outcome": "TN"
+    },
+    {
+      "Case ID": "f18a",
+      "Label": 0,
+      "Probability": 0.140861,
+      "Predicted Class": 0,
+      "Outcome": "TN"
+    },
+    {
+      "Case ID": "f18b",
+      "Label": 0,
+      "Probability": 0.10325,
+      "Predicted Class": 0,
+      "Outcome": "TN"
+    }
+  ],
+  "Systems": {
+    "classifier": {
+      "Confusion Matrix": [
+        [
+          6,
+          2
+        ],
+        [
+          1,
+          3
+        ]
+      ],
+      "Per Class": {
+        "Class 0": {
+          "Precision": 0.8571428571428571,
+          "Recall": 0.75,
+          "F1": 0.7999999999999999,
+          "Support": 8
+        },
+        "Class 1": {
+          "Precision": 0.6,
+          "Recall": 0.75,
+          "F1": 0.6666666666666665,
+          "Support": 4
+        }
+      },
+      "Macro-F1": 0.7333333333333332,
+      "Accuracy": 0.75
+    },
+    "rule baseline": {
+      "Confusion Matrix": [
+        [
+          2,
+          6
+        ],
+        [
+          2,
+          2
+        ]
+      ],
+      "Per Class": {
+        "Class 0": {
+          "Precision": 0.5,
+          "Recall": 0.25,
+          "F1": 0.3333333333333333,
+          "Support": 8
+        },
+        "Class 1": {
+          "Precision": 0.25,
+          "Recall": 0.5,
+          "F1": 0.3333333333333333,
+          "Support": 4
+        }
+      },
+      "Macro-F1": 0.3333333333333333,
+      "Accuracy": 0.3333333333333333
+    },
+    "majority baseline": {
+      "Confusion Matrix": [
+        [
+          8,
+          0
+        ],
+        [
+          4,
+          0
+        ]
+      ],
+      "Per Class": {
+        "Class 0": {
+          "Precision": 0.6666666666666666,
+          "Recall": 1.0,
+          "F1": 0.8,
+          "Support": 8
+        },
+        "Class 1": {
+          "Precision": 0.0,
+          "Recall": 0.0,
+          "F1": 0.0,
+          "Support": 4
+        }
+      },
+      "Macro-F1": 0.4,
+      "Accuracy": 0.6666666666666666
+    }
+  },
+  "Per-Example Loss": {
+    "f13a": 0.5358357867701583,
+    "f13b": 0.790537321985487,
+    "f14a": 0.17098762909705256,
+    "f14b": 0.12306068799549956,
+    "f15a": 1.6114298951148938,
+    "f15b": 1.9036344916151513,
+    "f16a": 0.00012300756512033045,
+    "f16b": 8.600369821206284e-05,
+    "f17a": 0.007722743768572234,
+    "f17b": 0.010979049803111256,
+    "f18a": 0.1518245540234969,
+    "f18b": 0.10897816256974505
+  },
+  "Log Loss": 0.4512666111672083,
+  "Largest Loss": {
+    "Case ID": "f15b",
+    "Probability": 0.850974,
+    "Per-Example Loss": 1.9036344916151513
+  },
+  "Lowest Confidence Correct Prediction": {
+    "Case ID": "f13a",
+    "Confidence": 0.58518,
+    "Probability": 0.58518,
+    "Per-Example Loss": 0.5358357867701583
+  }
+}
