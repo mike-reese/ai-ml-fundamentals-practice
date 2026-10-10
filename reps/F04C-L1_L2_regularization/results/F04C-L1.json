@@ -1,0 +1,105 @@
+{
+  "Penalty and Finite Difference Check": {
+    "w": 2.0,
+    "Weight Decay": 0.01,
+    "h": 0.001,
+    "Penalty": 0.02,
+    "Finite Difference": 0.020005000000000023,
+    "Exact Derivative": 0.02
+  },
+  "Optimizer Step": {
+    "w": 2.0,
+    "grad_w": 0.1,
+    "lr": 0.3,
+    "Steps": [
+      {
+        "Formula": "w - lr * (grad_w + weight_decay * w)",
+        "Weight Decay": 0.01,
+        "Updated w": 1.964
+      },
+      {
+        "Formula": "(1 - lr * weight_decay) * w - lr * grad_w",
+        "Weight Decay": 0.01,
+        "Updated w": 1.964
+      },
+      {
+        "Formula": "w - lr * (grad_w + weight_decay * w)",
+        "Weight Decay": 0.0,
+        "Updated w": 1.97
+      },
+      {
+        "Formula": "(1 - lr * weight_decay) * w - lr * grad_w",
+        "Weight Decay": 0.0,
+        "Updated w": 1.97
+      }
+    ]
+  },
+  "Table 2": [
+    {
+      "Weight Decay": 0.0,
+      "Training Loss": 0.0099,
+      "Validation Loss": 1.7445,
+      "Sum Squared Parameters": 251.61,
+      "Validation Accuracy": 0.6667,
+      "Generalization Gap": 1.7346
+    },
+    {
+      "Weight Decay": 0.001,
+      "Training Loss": 0.0285,
+      "Validation Loss": 1.1305,
+      "Sum Squared Parameters": 139.12,
+      "Validation Accuracy": 0.6667,
+      "Generalization Gap": 1.102
+    },
+    {
+      "Weight Decay": 0.003,
+      "Training Loss": 0.0738,
+      "Validation Loss": 0.6264,
+      "Sum Squared Parameters": 66.26,
+      "Validation Accuracy": 0.6667,
+      "Generalization Gap": 0.5526
+    },
+    {
+      "Weight Decay": 0.01,
+      "Training Loss": 0.2083,
+      "Validation Loss": 0.3746,
+      "Sum Squared Parameters": 15.39,
+      "Validation Accuracy": 0.8333,
+      "Generalization Gap": 0.16629999999999998
+    },
+    {
+      "Weight Decay": 0.03,
+      "Training Loss": 0.279,
+      "Validation Loss": 0.4244,
+      "Sum Squared Parameters": 6.83,
+      "Validation Accuracy": 0.8333,
+      "Generalization Gap": 0.14539999999999997
+    },
+    {
+      "Weight Decay": 0.1,
+      "Training Loss": 0.3862,
+      "Validation Loss": 0.49,
+      "Sum Squared Parameters": 3.01,
+      "Validation Accuracy": 0.6667,
+      "Generalization Gap": 0.1038
+    },
+    {
+      "Weight Decay": 0.3,
+      "Training Loss": 0.6367,
+      "Validation Loss": 0.6488,
+      "Sum Squared Parameters": 0.13,
+      "Validation Accuracy": 0.6667,
+      "Generalization Gap": 0.0121
+    }
+  ],
+  "Selected By Validation Loss": {
+    "Index": 3,
+    "Weight Decay": 0.01,
+    "Validation Loss": 0.3746
+  },
+  "Selected By Training Loss": {
+    "Index": 0,
+    "Weight Decay": 0.0,
+    "Training Loss": 0.0099
+  }
+}
