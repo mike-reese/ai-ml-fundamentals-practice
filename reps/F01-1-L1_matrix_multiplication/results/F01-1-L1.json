@@ -1,0 +1,122 @@
+{
+  "Shape Check": {
+    "Example 1": {
+      "Call": "XB @ mm_v",
+      "Left Shape": [
+        2,
+        3,
+        4
+      ],
+      "Right Shape": [
+        3
+      ],
+      "Left Contracted Length": 4,
+      "Right Contracted Length": 3,
+      "Mismatch": "contracted lengths differ: 4 != 3",
+      "matmul Error": "Contracted lengths do not match. tensor_a shape: (2, 3, 4) has k = 4, tensor_b shape: (3,) has k = 3"
+    },
+    "Example 2": {
+      "Call": "XB @ w",
+      "Left Shape": [
+        2,
+        3,
+        4
+      ],
+      "Right Shape": [
+        4
+      ],
+      "Left Contracted Length": 4,
+      "Right Contracted Length": 4,
+      "Batch Shape": [
+        2
+      ],
+      "Result Shape": [
+        2,
+        3
+      ]
+    },
+    "Example 3": {
+      "Call": "XB @ W2",
+      "Left Shape": [
+        2,
+        3,
+        4
+      ],
+      "Right Shape": [
+        4,
+        2
+      ],
+      "Left Contracted Length": 4,
+      "Right Contracted Length": 4,
+      "Batch Shape": [
+        2
+      ],
+      "Result Shape": [
+        2,
+        3,
+        2
+      ]
+    }
+  },
+  "Results": {
+    "Example 2": {
+      "Call": "XB @ w",
+      "Shape": [
+        2,
+        3
+      ],
+      "Result": [
+        [
+          4.1,
+          2.6,
+          2.3
+        ],
+        [
+          2.5,
+          4.5,
+          1.2000000000000002
+        ]
+      ],
+      "Max Difference From torch.matmul": 0.0
+    },
+    "Example 3": {
+      "Call": "XB @ W2",
+      "Shape": [
+        2,
+        3,
+        2
+      ],
+      "Result": [
+        [
+          [
+            4.1,
+            1.8
+          ],
+          [
+            2.6,
+            1.6
+          ],
+          [
+            2.3,
+            0.3
+          ]
+        ],
+        [
+          [
+            2.5,
+            1.2
+          ],
+          [
+            4.5,
+            1.9
+          ],
+          [
+            1.2000000000000002,
+            0.4
+          ]
+        ]
+      ],
+      "Max Difference From torch.matmul": 0.0
+    }
+  }
+}
