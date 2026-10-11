@@ -1,0 +1,165 @@
+{
+  "Sub-States": {
+    "z": [
+      3.1,
+      1.6,
+      1.3
+    ],
+    "m": 3.1,
+    "s": [
+      0.0,
+      -1.5,
+      -1.8
+    ],
+    "e": [
+      1.0,
+      0.22313016014842982,
+      0.16529888822158653
+    ],
+    "t": 1.3884290483700163,
+    "p": [
+      0.7202384602756453,
+      0.16070692298636324,
+      0.11905461673799148
+    ],
+    "p[0] Quotient": {
+      "e[0]": 1.0,
+      "t": 1.3884290483700163,
+      "p[0]": 0.7202384602756453
+    }
+  },
+  "Softmax Of Z By Axis": {
+    "dim=-1": {
+      "Probabilities": [
+        [
+          0.7202384602756453,
+          0.16070692298636324,
+          0.11905461673799148
+        ],
+        [
+          0.11545227185510615,
+          0.8530833134863715,
+          0.03146441465852235
+        ]
+      ],
+      "Row Sums": [
+        1.0,
+        1.0
+      ],
+      "Column Sums": [
+        0.8356907321307514,
+        1.0137902364727347,
+        0.15051903139651382
+      ]
+    },
+    "dim=0": {
+      "Probabilities": [
+        [
+          0.8320183851339245,
+          0.13010847436299786,
+          0.7502601055951177
+        ],
+        [
+          0.1679816148660755,
+          0.8698915256370021,
+          0.2497398944048824
+        ]
+      ],
+      "Row Sums": [
+        1.71238696509204,
+        1.28761303490796
+      ],
+      "Column Sums": [
+        1.0,
+        1.0,
+        1.0
+      ]
+    }
+  },
+  "float32": {
+    "z + 100": [
+      103.0999984741211,
+      101.5999984741211,
+      101.30000305175781
+    ],
+    "Naive Softmax": [
+      NaN,
+      NaN,
+      NaN
+    ],
+    "Our Softmax": [
+      0.7202380299568176,
+      0.16070683300495148,
+      0.11905508488416672
+    ],
+    "Against torch.softmax": {
+      "z_orient, dim=-1": {
+        "Shape": [
+          2
+        ],
+        "Max Difference From torch.softmax": 0.0
+      },
+      "z, dim=-1": {
+        "Shape": [
+          3
+        ],
+        "Max Difference From torch.softmax": 0.0
+      },
+      "Z, dim=-1": {
+        "Shape": [
+          2,
+          3
+        ],
+        "Max Difference From torch.softmax": 7.450580596923828e-09
+      },
+      "Z, dim=0": {
+        "Shape": [
+          2,
+          3
+        ],
+        "Max Difference From torch.softmax": 0.0
+      },
+      "z + 100, dim=-1": {
+        "Shape": [
+          3
+        ],
+        "Max Difference From torch.softmax": 1.4901161193847656e-08
+      },
+      "z_big, dim=-1": {
+        "Shape": [
+          3
+        ],
+        "Max Difference From torch.softmax": 0.0
+      },
+      "G, dim=-1": {
+        "Shape": [
+          3,
+          3
+        ],
+        "Max Difference From torch.softmax": 1.4901161193847656e-08
+      },
+      "Zc, dim=-1": {
+        "Shape": [
+          2,
+          3,
+          1
+        ],
+        "Max Difference From torch.softmax": 0.0
+      }
+    },
+    "Fully Masked Row": {
+      "z_masked": [
+        -Infinity,
+        -Infinity
+      ],
+      "Our Softmax": [
+        NaN,
+        NaN
+      ],
+      "torch.softmax": [
+        NaN,
+        NaN
+      ]
+    }
+  }
+}
