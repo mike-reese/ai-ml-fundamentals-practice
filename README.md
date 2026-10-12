@@ -14,6 +14,7 @@ The tasks were set by an AI tutor (Claude). I wrote all the code here without AI
 | `F04C-L1` | One optimizer step with L2 regularization; model selection on the validation set | 1 | complete | `torch.optim.SGD(weight_decay=...)`, `numpy.argmin` |
 | `F01-1-L1` | Matrix multiplication from loops, with batch broadcasting | 1 | complete | `torch.matmul` |
 | `F01-2-L1` | Stable softmax along a chosen axis | 1 | complete | `torch.softmax` |
+| `F02-1-L1` | Linear-model MSE gradients from their formulas; one SGD step on a list of parameters; one mini-batch epoch | 1 | complete | `torch.nn.functional.mse_loss` with `backward()`, `torch.optim.SGD` |
 
 ## Experiments
 

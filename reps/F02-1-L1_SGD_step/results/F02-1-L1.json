@@ -1,0 +1,130 @@
+{
+  "Full-Batch Step": {
+    "Loss": 3.1866666666666674,
+    "dL/dweight": [
+      8.333333333333332
+    ],
+    "dL/dbias": 1.0,
+    "weight After": [
+      1.0833333333333335
+    ],
+    "bias After": -0.05,
+    "Loss On All Six After": 1.3625462962962966
+  },
+  "Batch Gradients At The Initialization": {
+    "Batches": {
+      "[2, 5]": {
+        "Loss": 4.210000000000001,
+        "dL/dweight": [
+          14.3
+        ],
+        "dL/dbias": 2.8000000000000003
+      },
+      "[3, 0]": {
+        "Loss": 2.61,
+        "dL/dweight": [
+          2.6999999999999997
+        ],
+        "dL/dbias": -1.2000000000000002
+      },
+      "[1, 4]": {
+        "Loss": 2.74,
+        "dL/dweight": [
+          8.0
+        ],
+        "dL/dbias": 1.4000000000000004
+      }
+    },
+    "Mean Of Batch Gradients": {
+      "dL/dweight": [
+        8.333333333333334
+      ],
+      "dL/dbias": 1.0000000000000002
+    },
+    "Full-Batch Gradient": {
+      "dL/dweight": [
+        8.333333333333332
+      ],
+      "dL/dbias": 1.0
+    }
+  },
+  "One Epoch": [
+    {
+      "Step": 1,
+      "Batch": [
+        2,
+        5
+      ],
+      "Batch Loss": 4.210000000000001,
+      "dL/dweight": [
+        14.3
+      ],
+      "dL/dbias": 2.8000000000000003,
+      "weight After": [
+        0.7849999999999999
+      ],
+      "bias After": -0.14,
+      "Loss On All Six After": 2.2946625000000007
+    },
+    {
+      "Step": 2,
+      "Batch": [
+        3,
+        0
+      ],
+      "Batch Loss": 3.4679125000000015,
+      "dL/dweight": [
+        -4.155000000000002
+      ],
+      "dL/dbias": -3.625000000000001,
+      "weight After": [
+        0.99275
+      ],
+      "bias After": 0.04125000000000004,
+      "Loss On All Six After": 1.2565214062499996
+    },
+    {
+      "Step": 3,
+      "Batch": [
+        1,
+        4
+      ],
+      "Batch Loss": 0.8239030312499998,
+      "dL/dweight": [
+        -0.4169999999999996
+      ],
+      "dL/dbias": -1.0537499999999997,
+      "weight After": [
+        1.0136
+      ],
+      "bias After": 0.09393750000000003,
+      "Loss On All Six After": 1.1763345539062502
+    }
+  ],
+  "Two-Feature Step": {
+    "Loss": 6.5625,
+    "dL/dweight": [
+      0.0,
+      -6.0
+    ],
+    "dL/dbias": -3.5,
+    "weight After": [
+      0.5,
+      -0.3999999999999999
+    ],
+    "bias After": 0.6000000000000001,
+    "Loss After": 2.8599999999999994
+  },
+  "float32 Against torch.optim.SGD": {
+    "After 1 Steps": {
+      "Max Difference weight": 0.0,
+      "Max Difference bias": 0.0,
+      "Our Loss After": 3.2540552616119385
+    },
+    "After 200 Steps": {
+      "Max Difference weight": 0.0,
+      "Max Difference bias": 0.0,
+      "Our Loss After": 0.005218264646828175
+    }
+  }
+}
