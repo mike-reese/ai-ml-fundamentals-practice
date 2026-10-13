@@ -16,6 +16,7 @@ The tasks were set by an AI tutor (Claude). I wrote all the code here without AI
 | `F01-2-L1` | Stable softmax along a chosen axis | 1 | complete | `torch.softmax` |
 | `F02-1-L1` | Linear-model MSE gradients from their formulas; one SGD step on a list of parameters; one mini-batch epoch | 1 | complete | `torch.nn.functional.mse_loss` with `backward()`, `torch.optim.SGD` |
 | `F03-1-L1` | Logistic regression: stable sigmoid, binary cross-entropy from the logits, its gradient; 500 full-batch SGD steps | 1 | complete | `torch.nn.BCEWithLogitsLoss`, `torch.nn.Linear`, `torch.optim.SGD` |
+| `F03-2-L1` | Softmax cross-entropy from the logits and its gradient; gradients of a linear classifier and of a candidate scorer with one shared weight; full-batch SGD training of both | 1 | complete | `torch.nn.CrossEntropyLoss`, `torch.nn.Linear`, `torch.optim.SGD` |
 
 ## Experiments
 
