@@ -239,6 +239,10 @@ def test_test_mode_writes_summary_predictions_and_report(test_run, tiny_containe
         np.testing.assert_array_equal(p["label"].to_numpy(), tiny_container.test.labels)
     on_disk = json.loads((out / "results" / "test_report.json").read_text())
     assert on_disk.keys() == report.keys()
+    import torch
+    for name in s["run_name"]:
+        state = torch.load(out / "results" / "checkpoints" / f"{name}.pt")
+        assert any(k.endswith("weight") for k in state), "checkpoint holds the model weights"
 
 
 def test_test_mode_report_holds_the_primary_result_and_the_verdict(test_run):

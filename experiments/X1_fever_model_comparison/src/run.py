@@ -22,6 +22,7 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
+import torch
 
 import analysis
 import data
@@ -360,6 +361,7 @@ def test_mode(container, claim_only_container, claim: dict, results_dir: Path, f
         raise RuntimeError(f"{results_dir} exists: the test split is read once. Rerunning is a Deviation to record.")
     results_dir.mkdir(parents=True)
     pred_dir = results_dir / "predictions"
+    ckpt_dir = results_dir / "checkpoints"
 
     tr = claim["training"]
     device = tr.get("device") or train.default_device()
@@ -377,6 +379,8 @@ def test_mode(container, claim_only_container, claim: dict, results_dir: Path, f
         log(f"{name}: training")
         r = train.train(system, training_ds, validation_ds, run_name=name, seed=seed, weight_decay=cfg["weight_decay"],
                         hidden_size=cfg["hidden_size"], execution=execution, **settings)
+        ckpt_dir.mkdir(parents=True, exist_ok=True)
+        torch.save(r.model.state_dict(), ckpt_dir / f"{name}.pt")      # the weights behind this model's test number
         p = train.predict_proba(r.model, test_ds, device=device)      # the test-set read for this model
         save_predictions(pred_dir / f"{name}.parquet", p, test_ds)
         m = train.evaluate(p, test_ds.labels)

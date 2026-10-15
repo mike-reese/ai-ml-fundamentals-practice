@@ -312,6 +312,7 @@ what it trains:
 what it reads from the test split:
   one predict_proba per trained model, 2 x seeds + 1 calls, inside this one invocation; nothing else in the experiment reads it.
 what it writes (results/test/):
+  checkpoints/<run_name>.pt               the state dict of the model that produced that run's test predictions (not committed: ~600 MB per MLP)
   predictions/<run_name>.parquet          row, page, label, p_supports, p_refutes, p_nei, test-split order
   test_summary.csv                        one row per trained run: run_name, system, seed, best_epoch, epochs_run, val_log_loss, test_macro_f1, test_log_loss, test_accuracy
   test_report.json                        the primary result: mean difference over seeds with its page-unit interval (one draw resamples pages once and scores every seed's pair on the same pages, then averages the per-seed differences), the per-seed differences and their spread, the claim-unit interval as the secondary line, the four-row table (mlp, logreg, majority, claim-only: macro-F1, accuracy, log loss, per-class precision/recall/F1/support), confusion matrices, calibration bins, the generalization gap per run, the verdict, and the claim.json contents it ran under
