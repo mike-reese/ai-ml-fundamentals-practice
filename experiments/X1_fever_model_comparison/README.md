@@ -175,9 +175,84 @@ A check passes only if every row holds. Each runs before the test set is read an
 Run by `src/checks.py --n-train 0 --weight-decay 0.1` on 2026-10-15; values in `results/checks.json`. Baselines from the same run, validation split: majority class (SUPPORTS) macro-F1 0.2295, accuracy 0.5249; claim-only logistic regression macro-F1 0.5431, log loss 0.8565, macro-F1 on SUPPORTS and REFUTES claims alone 0.7147 (the tutor pilot's 0.71). Against the full-feature logistic regression's 0.5530, the evidence block adds 0.01 macro-F1.
 
 ## Result
-Not yet run. The test set is read once, after `claim.json` is frozen.
+**Not established.** The one-hidden-layer MLP did not outperform multinomial logistic regression. It scored lower on every seed, and the 95 percent page-unit interval of the mean difference excludes zero in logistic regression's favor.
 
-What will appear here: the primary difference with its 95 percent page-unit interval, the unit, 615 pages, 2,000 resamples; the difference for each seed and its spread; a 4-row table with each model -- MLP, Logistic Regression, Majority Class baseline, Claim-only baseline -- and every declared metric (macro-F1, accuracy, log loss, per-class precision, recall, F1 and support); confusion matrices; calibration bins; the generalization gap per system and seed; one figure of loss and validation macro-F1 over epochs per system and seed; the verdict under the decision rule. Every number is read from `results/`.
+Test split read once on 2026-10-15 (`run.py test`, execution `test_20261015_145814`), under `claim.json` as committed in `exp(X1): freeze claim`. 24,648 claims on 615 pages. Every number below is read from `results/test/`.
+
+### Primary result
+MLP macro-F1 minus logistic regression macro-F1, mean over seeds 0, 1, 2, each pair scored on the same test claims:
+
+| Quantity | Value |
+| --- | --- |
+| Mean difference over seeds | **-0.0275** |
+| 95% page-unit percentile bootstrap interval, 2,000 resamples of 615 pages | **[-0.0331, -0.0218]** |
+| Bootstrap standard error | 0.0029 |
+| Seed spread (standard deviation of the three per-seed differences) | 0.0194 |
+| Verdict under the decision rule (supported if the lower bound is above 0) | not established |
+
+The hypothesis predicted a small MLP advantage, under 0.03. The observed difference is about that size in the other direction. The pilot on the validation split predicted this (mean -0.026 over the same seeds); the test split confirms it.
+
+| Seed | MLP macro-F1 | LogReg macro-F1 | Difference | 95% page-unit CI | 95% claim-unit CI (secondary) |
+| --- | --- | --- | --- | --- | --- |
+| 0 | 0.5488 | 0.5571 | -0.0084 | [-0.0146, -0.0025] | [-0.0126, -0.0041] |
+| 1 | 0.5039 | 0.5510 | -0.0471 | [-0.0547, -0.0391] | [-0.0521, -0.0419] |
+| 2 | 0.5312 | 0.5582 | -0.0269 | [-0.0348, -0.0182] | [-0.0322, -0.0219] |
+
+Seed variation and case variation, separately: the three logistic regressions sit within 0.007 of each other; the three MLPs span 0.045. The seed spread of the difference (0.019) is seven times the bootstrap standard error (0.003), so which MLP you get matters more than which pages you test it on. The claim-unit intervals are narrower than the page-unit ones by about the design effect measured in the pilot (2.5 in variance, 1.6 in width), as expected; they are not the primary interval.
+
+### The four systems on the test split
+Systems at seed 0; every seed is in `results/test/test_summary.csv`. Per-class columns are precision / recall / F1. Support: SUPPORTS 12,881; REFUTES 5,535; NOT ENOUGH INFO 6,232.
+
+| System | Macro-F1 | Accuracy | Log loss | SUPPORTS | REFUTES | NOT ENOUGH INFO |
+| --- | --- | --- | --- | --- | --- | --- |
+| MLP, hidden 256, decay 0.1 | 0.5488 | 0.6230 | 0.8667 | 0.636 / 0.857 / 0.730 | 0.706 / 0.438 / 0.541 | 0.491 / 0.304 / 0.376 |
+| Logistic regression, decay 0.1 | 0.5571 | 0.6329 | 0.8677 | 0.641 / 0.871 / 0.738 | 0.704 / 0.460 / 0.557 | 0.520 / 0.295 / 0.376 |
+| Majority class (SUPPORTS) | 0.2288 | 0.5226 | 6.60 | 0.523 / 1.000 / 0.686 | 0 / 0 / 0 | 0 / 0 / 0 |
+| Claim-only logistic regression | 0.5444 | 0.6120 | 0.8562 | 0.633 / 0.831 / 0.718 | 0.730 / 0.461 / 0.565 | 0.433 / 0.294 / 0.350 |
+
+Distance to the baselines: logistic regression is 0.328 above the majority class and **0.013 above the claim-only baseline**. The MLP is 0.320 above majority and 0.004 above claim-only. Reading the evidence adds about one point of macro-F1 over reading the claim alone, for either system.
+
+Confusion matrices (rows true, columns predicted, order SUPPORTS / REFUTES / NOT ENOUGH INFO):
+
+| | MLP | Logistic regression | Claim-only |
+| --- | --- | --- | --- |
+| SUPPORTS | 11,036 / 513 / 1,332 | 11,215 / 527 / 1,139 | 10,703 / 481 / 1,697 |
+| REFUTES | 2,481 / 2,425 / 629 | 2,433 / 2,547 / 555 | 2,279 / 2,550 / 706 |
+| NOT ENOUGH INFO | 3,839 / 498 / 1,895 | 3,851 / 543 / 1,838 | 3,939 / 461 / 1,832 |
+
+Both systems fail the same way: they call most REFUTES and most NOT ENOUGH INFO claims SUPPORTS. Recall on NOT ENOUGH INFO is 0.30 for both. Neither label is where the MLP differs; it is slightly worse on all three.
+
+Calibration (argmax probability, ten bins; count, mean confidence, accuracy; empty bins omitted):
+
+| Bin | MLP | Logistic regression |
+| --- | --- | --- |
+| 0.3 to 0.4 | 537, 0.38, 0.37 | 708, 0.38, 0.40 |
+| 0.4 to 0.5 | 2,998, 0.46, 0.44 | 3,674, 0.46, 0.46 |
+| 0.5 to 0.6 | 4,259, 0.55, 0.52 | 4,202, 0.55, 0.53 |
+| 0.6 to 0.7 | 4,553, 0.65, 0.58 | 4,138, 0.65, 0.62 |
+| 0.7 to 0.8 | 4,990, 0.75, 0.65 | 4,316, 0.75, 0.67 |
+| 0.8 to 0.9 | 4,805, 0.85, 0.76 | 4,436, 0.85, 0.75 |
+| 0.9 to 1.0 | 2,506, 0.94, 0.86 | 3,174, 0.94, 0.84 |
+
+Both are overconfident above 0.6 by 5 to 10 points; the MLP a little more so in the middle bins. Log loss is the same to three decimals (0.867 vs 0.868), so the MLP's probabilities are not better; its argmax is slightly worse.
+
+Generalization gap (training loss minus validation loss at the stopping epoch): logistic regression -0.21, -0.19, -0.22; MLP -0.11, +0.06, +0.06. The MLP runs that stopped at epoch 1 (seeds 1 and 2) had not yet fitted the training set when validation loss turned; the one that reached epoch 2 (seed 0) is the best MLP and the closest to logistic regression. Figure: `figures/test_loss_over_epochs.png`.
+
+### What the training curves say about the stopping rule
+Early stopping on validation log loss, patience 3, was declared before the pilot and kept at the freeze. For the MLP it stops very early: best epoch 2, 1, 1 on the three test-mode runs. In the pilot, the MLP's validation macro-F1 kept rising for several epochs after its validation log loss had turned up (seed 0, decay 0: log loss 0.878 -> 0.984 over epochs 1 to 4 while macro-F1 went 0.531 -> 0.574). The MLP becomes overconfident on the claims it gets wrong faster than it gets more claims right, and log loss charges for that. So the stopped MLP is a model from the first or second epoch, and the comparison is between that model and a logistic regression that stopped at epoch 3 or 4.
+
+This is a property of the declared rule, not a bug, and it was known before the freeze (Deviations, pilot observations). Stopping on macro-F1 instead would have selected later MLP epochs, which on validation reached about 0.57, the same region as logistic regression. The option was considered at the freeze and declined: the rule was declared, and changing it after seeing that it favored one system would make the result a choice rather than a test. A follow-up experiment could declare macro-F1 stopping up front; the pilot numbers suggest it would move the MLP to parity, not to an advantage.
+
+### Discussion
+The result is a negative, and the write-up's job is to say what it does and does not show.
+
+What it shows: on these features, with this training procedure, a hidden layer does not help. Both systems land at 0.55 to 0.56 macro-F1, the claim-only baseline lands at 0.54, and the three seeds of the MLP are more spread than the gap between the systems. The 0.013 that the evidence block adds over the claim alone is the most informative number in the table: the models are barely reading the evidence.
+
+Why, speculatively (this was not tested and is not a claim of this experiment): TF-IDF features cannot carry what the task needs. Verification is a relation between a statement and a passage: the claim says "born in 1985" and the evidence says "born in 1958", or the claim names a person and the evidence is about someone else with the same surname. In a bag of words, "1985" and "1958" are two unrelated columns, word order is gone, and the only relationship the input encodes is two scalars, the overlap count and the cosine, which measure how many words the sides share and not whether they agree. A hidden layer can form products of input positions, but the positions it is given do not contain the information a product would need. The MLP has 150 million parameters to combine 586,876 near-unique bigram columns, and what it learns to combine is which training claims those bigrams belonged to. That is the generalization gap in the pilot: training loss 0.5 against validation 0.9 by epoch 4. The linear model at least cannot memorize as fast.
+
+If that is right, the experiment's design limited its outcome before any model was trained: a comparison of two classifiers on an input that neither can use is a comparison of how fast they overfit. The same experiment with inputs that encode the relation, token-level alignment features or sentence embeddings, would be a different experiment with a different question, and the FEVER literature's jump from bag-of-words baselines to attention models is consistent with that. None of this is established here; the only test-set read is the one reported above.
+
+What the negative control and the baselines protect: the shuffled-label model scored at the prior (0.235), so the pipeline cannot score without real labels; the torch logistic regression is within 0.02 of scikit-learn's converged solution, so the training loop reaches the linear optimum; the seeded rerun reproduced every metric to zero difference; and the claim-only baseline reproduces the known FEVER annotation artifact (macro-F1 0.71 on SUPPORTS and REFUTES from the claim text alone on validation, matching the tutor pilot's 0.71). The systems were compared on the same features, the same claims, and the same pages, with the page as the unit throughout.
 
 ## Error Analysis
 After the test-set read: real failure cases from the test set and what they share. Planned cuts: claims whose gold sentence was not in the five retrieved (the retrieval ceiling); NOT ENOUGH INFO claims whose inferred page was wrong; claims that cite a second page that was not read; disagreements between the two systems.
@@ -209,6 +284,14 @@ All numbers are validation-split scores; the test split has not been read.
 3. **Weight-decay grid 0 / 1e-5 / 1e-4 / 1e-3 -> 0 / 0.01 / 0.1 / 1.0.** In the first full pilot the three smallest decays gave validation losses identical to four decimals at every seed, because AdamW shrinks a weight by lr x decay per step and 1e-2 x 1e-4 is a millionth. The subset sweep over the new grid shows decay up to 0.1 leaves the validation floor unchanged and 1.0 raises it by 0.02, so the new grid brackets the optimum and the answer inside it is "weak or none". The pilot is rerun on this grid; the chosen value per system is declared in `claim.json` at the freeze.
 
 4. **Shuffled-label check: chance has two references.** The row was written as "within 0.05 of 1/3". The shuffled-label model scored 0.2346 macro-F1 with log loss 1.036. That is the majority-class value (0.2295) and the entropy of the label prior (1.018): with 53 percent SUPPORTS, a model fitted to noise learns the class frequencies and predicts SUPPORTS for everything, and macro-F1 of that is 0.23, not 1/3. The model learned nothing, which is what the control tests, but the row as written fails. The condition is amended before the freeze to "within 0.05 of 1/3 (uniform guessing) or of the majority-class macro-F1 (prior only)", both recorded. The observed value is unchanged by the amendment.
+
+### After the freeze
+
+`claim.json` was committed on 2026-10-15 (`exp(X1): freeze claim`). Nothing in it changed afterward. Two things happened between the freeze and the completed test read:
+
+5. **Test mode saves checkpoints.** As written at the freeze, test mode retrained the chosen configurations under the frozen settings and seeds (a reproduction of the pilot models, which the seeded-rerun check covers) and scored the test split, keeping the per-claim predictions but not the weights. The spec freezes the procedure, not the weights, and this was within it; but the artifact behind each test number should exist on disk. One line was added so each model's state dict is written to `results/test/checkpoints/` beside its predictions (committed as `exp(X1): test mode saves each model's checkpoint`, before the test read completed). The checkpoints are gitignored; the MLP ones are about 600 MB each.
+
+6. **The first test run was stopped and rerun.** The first invocation of `run.py test` was stopped by hand after one of its seven models, logistic regression seed 0, had been trained and scored, to make the change above. Its test macro-F1 (0.5571) and log loss (0.8677) were seen in the console. No decision was made on them and no other model's test score existed. The partial `results/test/` was deleted and test mode was run again from the start under the same `claim.json`; the rerun reproduces that model exactly (same seed, same settings), so the number seen is the number reported. This is the only test-split exposure before the reported read.
 
 ### What the comparison to scikit-learn shows
 

@@ -1,0 +1,115 @@
+{
+  "rows": [
+    {
+      "quantity": "Vectorizer vocabulary fitted on the training set only",
+      "condition": "no term that occurs only in the validation or test set is in it",
+      "tolerance": "exact",
+      "observed": {
+        "vocabulary_size": 293437,
+        "terms_absent_from_training": 0
+      },
+      "holds": true,
+      "run_names": []
+    },
+    {
+      "quantity": "Torch logistic regression against sklearn LogisticRegression, same features, validation macro-F1",
+      "condition": "within 0.02",
+      "tolerance": "0.02",
+      "observed": {
+        "torch_macro_f1": 0.5529754826333734,
+        "sklearn_macro_f1": 0.571503331817242,
+        "gap": 0.018527849183868628,
+        "n_train": 114883,
+        "sklearn_C": 1.0,
+        "torch_best_epoch": 4
+      },
+      "holds": true,
+      "run_names": [
+        "check_sklearn_torch"
+      ]
+    },
+    {
+      "quantity": "Shuffled training labels, negative control",
+      "condition": "validation macro-F1 at chance: within 0.05 of 1/3 (uniform) or of the majority-class macro-F1 (prior only)",
+      "tolerance": "0.05",
+      "observed": {
+        "macro_f1": 0.23459367108977744,
+        "chance_uniform": 0.3333333333333333,
+        "chance_prior_only": 0.2294915816972906,
+        "distance_from_uniform": 0.09873966224355588,
+        "distance_from_prior_only": 0.005102089392486853,
+        "log_loss": 1.0357776010768647,
+        "label_prior_entropy": 1.017508560792129,
+        "n_train": 114883
+      },
+      "holds": true,
+      "run_names": [
+        "check_shuffled_labels"
+      ]
+    },
+    {
+      "quantity": "Seeded rerun",
+      "condition": "the same seed reproduces the saved validation metrics",
+      "tolerance": "1e-6",
+      "observed": {
+        "max_abs_difference": 8.028579800978264e-09,
+        "epochs": 7,
+        "same_epoch_count": true,
+        "val_macro_f1": 0.5529754826333734
+      },
+      "holds": true,
+      "run_names": [
+        "check_rerun_a",
+        "check_rerun_b"
+      ]
+    },
+    {
+      "quantity": "Majority-class baseline",
+      "condition": "training majority class predicted for every validation claim",
+      "tolerance": "reported",
+      "observed": {
+        "majority_code": 0,
+        "majority_label": "SUPPORTS",
+        "macro_f1": 0.2294915816972906,
+        "accuracy": 0.5249420417299544
+      },
+      "holds": "reported",
+      "run_names": []
+    },
+    {
+      "quantity": "Claim-only baseline",
+      "condition": "torch logistic regression on the claim block alone, validation",
+      "tolerance": "reported",
+      "observed": {
+        "macro_f1": 0.5430588770573809,
+        "log_loss": 0.8564976317624067,
+        "macro_f1_supports_refutes": 0.7147483889941693,
+        "n_features": 293437,
+        "best_epoch": 3
+      },
+      "holds": "reported",
+      "run_names": [
+        "check_claim_only"
+      ]
+    }
+  ],
+  "settings": {
+    "learning_rate": 0.01,
+    "weight_decay": 0.1,
+    "batch_size": 256,
+    "max_epochs": 30,
+    "patience": 3,
+    "device": "cuda",
+    "results_dir": "/home/mike/Work/Code/Personal/ai-ml-fundamentals-practice/experiments/X1_fever_model_comparison/results",
+    "execution": "checks_20261015_144908",
+    "n_train": 0,
+    "seed": 0,
+    "features": {
+      "ngram_range": [
+        1,
+        2
+      ],
+      "min_df": 2
+    }
+  }
+}

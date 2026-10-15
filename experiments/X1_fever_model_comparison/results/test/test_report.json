@@ -1,0 +1,798 @@
+{
+  "mode": "test",
+  "execution": "test_20261015_145814",
+  "claim": {
+    "experiment": "X1_fever_model_comparison",
+    "frozen": "2026-10-15",
+    "question": "On FEVER claim verification with the page given, does a one-hidden-layer MLP outperform multinomial logistic regression on the same TF-IDF features, measured by macro-F1 on held-out Wikipedia pages?",
+    "claim": "The one-hidden-layer MLP outperforms multinomial logistic regression on FEVER claim verification with the page given, on the same TF-IDF features, measured by macro-F1 on held-out Wikipedia pages.",
+    "hypothesis": "The MLP outperforms by a small margin, under 0.03 macro-F1, with a page-unit confidence interval that may include zero. Pilot on the validation split (2026-10-15): the MLP scored below logistic regression by 0.026 mean over three seeds under the declared stopping rule; the pilot therefore predicts the hypothesis is not supported.",
+    "decision_rule": "Supported when the 95% page-unit percentile-bootstrap interval of the mean (over seeds) MLP-minus-logreg macro-F1 difference on the test split excludes 0 in the MLP's favor (lower bound > 0); otherwise not established.",
+    "primary_metric": "macro-F1, sklearn.metrics.f1_score(average='macro'), label order SUPPORTS, REFUTES, NOT ENOUGH INFO",
+    "unit": "page: the claim's primary page; the split and the bootstrap both use it",
+    "data": {
+      "dataset": "FEVER v1.0, fever.ai claim files and wiki-pages.zip, pinned by SHA-256 in scripts/get_data.py",
+      "data_card": "data/fever/data_card.json",
+      "split": {
+        "by": "primary page",
+        "shares_of_pages": {
+          "training": 0.7,
+          "validation": 0.15,
+          "test": 0.15
+        },
+        "seed": 20261013,
+        "pages": {
+          "training": 2873,
+          "validation": 616,
+          "test": 615
+        },
+        "claims": {
+          "training": 114883,
+          "validation": 25018,
+          "test": 24648
+        }
+      },
+      "evidence": {
+        "rule": "top-k sentences of the primary page by TF-IDF cosine to the claim, fitted on the training split",
+        "k": 5
+      }
+    },
+    "features": {
+      "ngram_range": [
+        1,
+        2
+      ],
+      "min_df": 2,
+      "vocabulary_size": 293437,
+      "input_width": 586876,
+      "blocks": "claim block, evidence block, overlap count and cosine standardized with training mean and std; claim-only baseline receives the claim block alone"
+    },
+    "training": {
+      "optimizer": "AdamW",
+      "learning_rate": 0.01,
+      "batch_size": 256,
+      "max_epochs": 30,
+      "patience": 3,
+      "early_stopping": "validation log loss; the weights of the best validation-loss epoch are restored",
+      "loss": "cross-entropy on the logits"
+    },
+    "systems": {
+      "logreg": {
+        "model": "MultinomialLogisticRegression, one linear layer F -> 3",
+        "weight_decay": 0.1,
+        "hidden_size": null,
+        "chosen_by": "mean validation macro-F1 over seeds 0, 1, 2 across the grid",
+        "pilot_validation_macro_f1_mean": 0.552
+      },
+      "mlp": {
+        "model": "OneHiddenLayerMLP, linear F -> 256, ReLU, linear 256 -> 3",
+        "weight_decay": 0.1,
+        "hidden_size": 256,
+        "chosen_by": "mean validation macro-F1 over seeds 0, 1, 2 across the grid",
+        "pilot_validation_macro_f1_mean": 0.5258
+      }
+    },
+    "grid": {
+      "weight_decay": [
+        0.0,
+        0.01,
+        0.1,
+        1.0
+      ],
+      "hidden_sizes": [
+        256
+      ]
+    },
+    "seeds": [
+      0,
+      1,
+      2
+    ],
+    "bootstrap": {
+      "unit": "page",
+      "n_resamples": 2000,
+      "level": 0.95,
+      "method": "percentile; one draw takes 615 pages with replacement and scores every seed's pair of systems on the same pages, then averages the per-seed differences",
+      "secondary": "claim-unit interval reported as one line; per-seed page-unit intervals reported"
+    },
+    "sizing": {
+      "source": "pilot on the validation split, 616 pages",
+      "se_at_616_pages": 0.0028,
+      "fit_c_over_sqrt_pages": 0.0705,
+      "expected_half_width_at_615_test_pages": 0.0056,
+      "intra_page_correlation_of_correctness": {
+        "logreg": 0.038,
+        "mlp": 0.041
+      },
+      "design_effect": 2.5
+    },
+    "baselines": {
+      "majority_class": "training majority (SUPPORTS) for every test claim",
+      "claim_only": "logreg with the chosen logreg decay on the claim block alone, seed 0",
+      "library_check": "sklearn.linear_model.LogisticRegression, C = 1, on the same features (validation only)"
+    },
+    "checks": [
+      {
+        "quantity": "Vectorizer vocabulary fitted on the training set only",
+        "condition": "no term that occurs only in the validation or test set is in it",
+        "tolerance": "exact"
+      },
+      {
+        "quantity": "Torch logistic regression against sklearn LogisticRegression, same features, validation macro-F1",
+        "condition": "within 0.02",
+        "tolerance": 0.02
+      },
+      {
+        "quantity": "Shuffled training labels, negative control",
+        "condition": "validation macro-F1 at chance: within 0.05 of 1/3 (uniform) or of the majority-class macro-F1 (prior only)",
+        "tolerance": 0.05
+      },
+      {
+        "quantity": "Seeded rerun",
+        "condition": "the same seed reproduces the saved validation metrics",
+        "tolerance": 1e-06
+      },
+      {
+        "quantity": "Pages in two splits",
+        "condition": "none",
+        "tolerance": "exact"
+      },
+      {
+        "quantity": "Claims in two splits",
+        "condition": "none",
+        "tolerance": "exact"
+      }
+    ],
+    "test_set_read": {
+      "rule": "once, by run.py test, after this file is committed; run.py refuses to run twice",
+      "reads": "2 systems x 3 seeds + 1 claim-only baseline = 7 predict_proba calls in one invocation"
+    },
+    "secondary_analyses": [
+      "log loss and calibration bins",
+      "per-class precision, recall, F1, support; confusion matrices; accuracy",
+      "generalization gap per system and seed",
+      "distance to the majority-class and claim-only baselines",
+      "seed spread of the difference",
+      "claim-unit interval"
+    ]
+  },
+  "n_test": 24648,
+  "n_test_pages": 615,
+  "primary": {
+    "difference": -0.02745765393623867,
+    "ci_low": -0.03307986640162593,
+    "ci_high": -0.02180331473519149,
+    "se": 0.0029070914357377637,
+    "n_resamples": 2000,
+    "n_pages": 615,
+    "n_seeds": 3,
+    "per_seed": [
+      -0.008369321787565442,
+      -0.04706777526653738,
+      -0.02693586475461318
+    ]
+  },
+  "per_seed": [
+    {
+      "seed": 0,
+      "difference": -0.008369321787565442,
+      "ci_low": -0.014563052996548125,
+      "ci_high": -0.0025461127488156433,
+      "se": 0.00310871484356358,
+      "n_resamples": 2000,
+      "n_pages": 615
+    },
+    {
+      "seed": 1,
+      "difference": -0.04706777526653738,
+      "ci_low": -0.05473946900594035,
+      "ci_high": -0.039072889974546395,
+      "se": 0.00407436546467336,
+      "n_resamples": 2000,
+      "n_pages": 615
+    },
+    {
+      "seed": 2,
+      "difference": -0.02693586475461318,
+      "ci_low": -0.034802865425197005,
+      "ci_high": -0.018188610131324712,
+      "se": 0.004205281616737351,
+      "n_resamples": 2000,
+      "n_pages": 615
+    }
+  ],
+  "seed_spread": {
+    "mean_difference": -0.02745765393623867,
+    "sd_difference": 0.019354502664201547
+  },
+  "secondary_by_claim": {
+    "0": {
+      "difference": -0.008369321787565442,
+      "ci_low": -0.01260646635602016,
+      "ci_high": -0.0041141917257368375,
+      "se": 0.0021262476038635125,
+      "n_resamples": 2000,
+      "n_rows": 24648
+    },
+    "1": {
+      "difference": -0.04706777526653738,
+      "ci_low": -0.05211442203883092,
+      "ci_high": -0.04192842710375505,
+      "se": 0.0025928241101950264,
+      "n_resamples": 2000,
+      "n_rows": 24648
+    },
+    "2": {
+      "difference": -0.02693586475461318,
+      "ci_low": -0.03217231678230164,
+      "ci_high": -0.021879331260528913,
+      "se": 0.0026220517724346824,
+      "n_resamples": 2000,
+      "n_rows": 24648
+    }
+  },
+  "table": {
+    "mlp": {
+      "macro_f1": 0.5487638042699291,
+      "log_loss": 0.8666741915449546,
+      "accuracy": 0.6230120090879585,
+      "per_class": {
+        "SUPPORTS": {
+          "precision": 0.6358607974187601,
+          "recall": 0.8567657790544212,
+          "f1-score": 0.7299665972153322,
+          "support": 12881.0
+        },
+        "REFUTES": {
+          "precision": 0.7057625145518044,
+          "recall": 0.43812104787714545,
+          "f1-score": 0.5406309218593245,
+          "support": 5535.0
+        },
+        "NOT ENOUGH INFO": {
+          "precision": 0.4914419087136929,
+          "recall": 0.3040757381258023,
+          "f1-score": 0.37569389373513085,
+          "support": 6232.0
+        },
+        "accuracy": 0.6230120090879585,
+        "macro avg": {
+          "precision": 0.6110217402280859,
+          "recall": 0.5329875216857897,
+          "f1-score": 0.5487638042699291,
+          "support": 24648.0
+        },
+        "weighted avg": {
+          "precision": 0.6150431850332286,
+          "recall": 0.6230120090879585,
+          "f1-score": 0.5978747256158468,
+          "support": 24648.0
+        }
+      }
+    },
+    "logreg": {
+      "macro_f1": 0.5571331260574945,
+      "log_loss": 0.8676991098779555,
+      "accuracy": 0.6329113924050633,
+      "per_class": {
+        "SUPPORTS": {
+          "precision": 0.6408937653580205,
+          "recall": 0.8706622156664855,
+          "f1-score": 0.738314680710994,
+          "support": 12881.0
+        },
+        "REFUTES": {
+          "precision": 0.7041747304395908,
+          "recall": 0.46016260162601624,
+          "f1-score": 0.5565996503496503,
+          "support": 5535.0
+        },
+        "NOT ENOUGH INFO": {
+          "precision": 0.5203850509626274,
+          "recall": 0.29492939666238766,
+          "f1-score": 0.3764850471118394,
+          "support": 6232.0
+        },
+        "accuracy": 0.6329113924050633,
+        "macro avg": {
+          "precision": 0.6218178489200796,
+          "recall": 0.5419180713182964,
+          "f1-score": 0.5571331260574945,
+          "support": 24648.0
+        },
+        "weighted avg": {
+          "precision": 0.6246348329340673,
+          "recall": 0.6329113924050633,
+          "f1-score": 0.6060234209885026,
+          "support": 24648.0
+        }
+      }
+    },
+    "majority": {
+      "macro_f1": 0.22881860250295327,
+      "log_loss": 6.595550896526752,
+      "accuracy": 0.522598182408309,
+      "per_class": {
+        "SUPPORTS": {
+          "precision": 0.522598182408309,
+          "recall": 1.0,
+          "f1-score": 0.6864558075088598,
+          "support": 12881.0
+        },
+        "REFUTES": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1-score": 0.0,
+          "support": 5535.0
+        },
+        "NOT ENOUGH INFO": {
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1-score": 0.0,
+          "support": 6232.0
+        },
+        "accuracy": 0.522598182408309,
+        "macro avg": {
+          "precision": 0.174199394136103,
+          "recall": 0.3333333333333333,
+          "f1-score": 0.22881860250295327,
+          "support": 24648.0
+        },
+        "weighted avg": {
+          "precision": 0.27310886025646824,
+          "recall": 0.522598182408309,
+          "f1-score": 0.35874055730775817,
+          "support": 24648.0
+        }
+      }
+    },
+    "claim_only": {
+      "macro_f1": 0.5444327462853019,
+      "log_loss": 0.8561858264086929,
+      "accuracy": 0.6120172022070757,
+      "per_class": {
+        "SUPPORTS": {
+          "precision": 0.632527628390757,
+          "recall": 0.8309137489325363,
+          "f1-score": 0.7182739413462184,
+          "support": 12881.0
+        },
+        "REFUTES": {
+          "precision": 0.7302405498281787,
+          "recall": 0.46070460704607047,
+          "f1-score": 0.5649717514124294,
+          "support": 5535.0
+        },
+        "NOT ENOUGH INFO": {
+          "precision": 0.43258559622195986,
+          "recall": 0.2939666238767651,
+          "f1-score": 0.35005254609725805,
+          "support": 6232.0
+        },
+        "accuracy": 0.6120172022070757,
+        "macro avg": {
+          "precision": 0.5984512581469651,
+          "recall": 0.5285283266184573,
+          "f1-score": 0.5444327462853019,
+          "support": 24648.0
+        },
+        "weighted avg": {
+          "precision": 0.6039168800817739,
+          "recall": 0.6120172022070757,
+          "f1-score": 0.5907470281494055,
+          "support": 24648.0
+        }
+      }
+    }
+  },
+  "confusion": {
+    "mlp": [
+      [
+        11036,
+        513,
+        1332
+      ],
+      [
+        2481,
+        2425,
+        629
+      ],
+      [
+        3839,
+        498,
+        1895
+      ]
+    ],
+    "logreg": [
+      [
+        11215,
+        527,
+        1139
+      ],
+      [
+        2433,
+        2547,
+        555
+      ],
+      [
+        3851,
+        543,
+        1838
+      ]
+    ],
+    "majority": [
+      [
+        12881,
+        0,
+        0
+      ],
+      [
+        5535,
+        0,
+        0
+      ],
+      [
+        6232,
+        0,
+        0
+      ]
+    ],
+    "claim_only": [
+      [
+        10703,
+        481,
+        1697
+      ],
+      [
+        2279,
+        2550,
+        706
+      ],
+      [
+        3939,
+        461,
+        1832
+      ]
+    ]
+  },
+  "calibration": {
+    "mlp": [
+      {
+        "bin": 0,
+        "lower": 0.0,
+        "upper": 0.1,
+        "count": 0,
+        "mean_confidence": null,
+        "accuracy": null
+      },
+      {
+        "bin": 1,
+        "lower": 0.1,
+        "upper": 0.2,
+        "count": 0,
+        "mean_confidence": null,
+        "accuracy": null
+      },
+      {
+        "bin": 2,
+        "lower": 0.2,
+        "upper": 0.30000000000000004,
+        "count": 0,
+        "mean_confidence": null,
+        "accuracy": null
+      },
+      {
+        "bin": 3,
+        "lower": 0.30000000000000004,
+        "upper": 0.4,
+        "count": 537,
+        "mean_confidence": 0.37859713356910174,
+        "accuracy": 0.37243947858473
+      },
+      {
+        "bin": 4,
+        "lower": 0.4,
+        "upper": 0.5,
+        "count": 2998,
+        "mean_confidence": 0.45725506748615613,
+        "accuracy": 0.43562374916611074
+      },
+      {
+        "bin": 5,
+        "lower": 0.5,
+        "upper": 0.6000000000000001,
+        "count": 4259,
+        "mean_confidence": 0.5509994252743093,
+        "accuracy": 0.5149096031932379
+      },
+      {
+        "bin": 6,
+        "lower": 0.6000000000000001,
+        "upper": 0.7000000000000001,
+        "count": 4553,
+        "mean_confidence": 0.6499952977847049,
+        "accuracy": 0.575225126290358
+      },
+      {
+        "bin": 7,
+        "lower": 0.7000000000000001,
+        "upper": 0.8,
+        "count": 4990,
+        "mean_confidence": 0.7498910411831511,
+        "accuracy": 0.6531062124248497
+      },
+      {
+        "bin": 8,
+        "lower": 0.8,
+        "upper": 0.9,
+        "count": 4805,
+        "mean_confidence": 0.8485462859599509,
+        "accuracy": 0.7558792924037461
+      },
+      {
+        "bin": 9,
+        "lower": 0.9,
+        "upper": 1.0,
+        "count": 2506,
+        "mean_confidence": 0.93591954073723,
+        "accuracy": 0.8567438148443735
+      }
+    ],
+    "logreg": [
+      {
+        "bin": 0,
+        "lower": 0.0,
+        "upper": 0.1,
+        "count": 0,
+        "mean_confidence": null,
+        "accuracy": null
+      },
+      {
+        "bin": 1,
+        "lower": 0.1,
+        "upper": 0.2,
+        "count": 0,
+        "mean_confidence": null,
+        "accuracy": null
+      },
+      {
+        "bin": 2,
+        "lower": 0.2,
+        "upper": 0.30000000000000004,
+        "count": 0,
+        "mean_confidence": null,
+        "accuracy": null
+      },
+      {
+        "bin": 3,
+        "lower": 0.30000000000000004,
+        "upper": 0.4,
+        "count": 708,
+        "mean_confidence": 0.3770800095191034,
+        "accuracy": 0.4025423728813559
+      },
+      {
+        "bin": 4,
+        "lower": 0.4,
+        "upper": 0.5,
+        "count": 3674,
+        "mean_confidence": 0.4555400939267942,
+        "accuracy": 0.4559063690800218
+      },
+      {
+        "bin": 5,
+        "lower": 0.5,
+        "upper": 0.6000000000000001,
+        "count": 4202,
+        "mean_confidence": 0.5496682461702713,
+        "accuracy": 0.5309376487386959
+      },
+      {
+        "bin": 6,
+        "lower": 0.6000000000000001,
+        "upper": 0.7000000000000001,
+        "count": 4138,
+        "mean_confidence": 0.6501040616525415,
+        "accuracy": 0.6152730787820203
+      },
+      {
+        "bin": 7,
+        "lower": 0.7000000000000001,
+        "upper": 0.8,
+        "count": 4316,
+        "mean_confidence": 0.7503491915388412,
+        "accuracy": 0.6709916589434661
+      },
+      {
+        "bin": 8,
+        "lower": 0.8,
+        "upper": 0.9,
+        "count": 4436,
+        "mean_confidence": 0.8501525202421918,
+        "accuracy": 0.7477457168620378
+      },
+      {
+        "bin": 9,
+        "lower": 0.9,
+        "upper": 1.0,
+        "count": 3174,
+        "mean_confidence": 0.939962123808059,
+        "accuracy": 0.8349086326402017
+      }
+    ],
+    "majority": [
+      {
+        "bin": 0,
+        "lower": 0.0,
+        "upper": 0.1,
+        "count": 0,
+        "mean_confidence": null,
+        "accuracy": null
+      },
+      {
+        "bin": 1,
+        "lower": 0.1,
+        "upper": 0.2,
+        "count": 0,
+        "mean_confidence": null,
+        "accuracy": null
+      },
+      {
+        "bin": 2,
+        "lower": 0.2,
+        "upper": 0.30000000000000004,
+        "count": 0,
+        "mean_confidence": null,
+        "accuracy": null
+      },
+      {
+        "bin": 3,
+        "lower": 0.30000000000000004,
+        "upper": 0.4,
+        "count": 0,
+        "mean_confidence": null,
+        "accuracy": null
+      },
+      {
+        "bin": 4,
+        "lower": 0.4,
+        "upper": 0.5,
+        "count": 0,
+        "mean_confidence": null,
+        "accuracy": null
+      },
+      {
+        "bin": 5,
+        "lower": 0.5,
+        "upper": 0.6000000000000001,
+        "count": 0,
+        "mean_confidence": null,
+        "accuracy": null
+      },
+      {
+        "bin": 6,
+        "lower": 0.6000000000000001,
+        "upper": 0.7000000000000001,
+        "count": 0,
+        "mean_confidence": null,
+        "accuracy": null
+      },
+      {
+        "bin": 7,
+        "lower": 0.7000000000000001,
+        "upper": 0.8,
+        "count": 0,
+        "mean_confidence": null,
+        "accuracy": null
+      },
+      {
+        "bin": 8,
+        "lower": 0.8,
+        "upper": 0.9,
+        "count": 0,
+        "mean_confidence": null,
+        "accuracy": null
+      },
+      {
+        "bin": 9,
+        "lower": 0.9,
+        "upper": 1.0,
+        "count": 24648,
+        "mean_confidence": 0.9999979999995685,
+        "accuracy": 0.522598182408309
+      }
+    ],
+    "claim_only": [
+      {
+        "bin": 0,
+        "lower": 0.0,
+        "upper": 0.1,
+        "count": 0,
+        "mean_confidence": null,
+        "accuracy": null
+      },
+      {
+        "bin": 1,
+        "lower": 0.1,
+        "upper": 0.2,
+        "count": 0,
+        "mean_confidence": null,
+        "accuracy": null
+      },
+      {
+        "bin": 2,
+        "lower": 0.2,
+        "upper": 0.30000000000000004,
+        "count": 0,
+        "mean_confidence": null,
+        "accuracy": null
+      },
+      {
+        "bin": 3,
+        "lower": 0.30000000000000004,
+        "upper": 0.4,
+        "count": 1187,
+        "mean_confidence": 0.3775991385816581,
+        "accuracy": 0.42038753159224934
+      },
+      {
+        "bin": 4,
+        "lower": 0.4,
+        "upper": 0.5,
+        "count": 6308,
+        "mean_confidence": 0.4551039376207652,
+        "accuracy": 0.474001268230818
+      },
+      {
+        "bin": 5,
+        "lower": 0.5,
+        "upper": 0.6000000000000001,
+        "count": 6267,
+        "mean_confidence": 0.5482005814229438,
+        "accuracy": 0.5608744215733206
+      },
+      {
+        "bin": 6,
+        "lower": 0.6000000000000001,
+        "upper": 0.7000000000000001,
+        "count": 4693,
+        "mean_confidence": 0.6468742238871125,
+        "accuracy": 0.6586405284466226
+      },
+      {
+        "bin": 7,
+        "lower": 0.7000000000000001,
+        "upper": 0.8,
+        "count": 3196,
+        "mean_confidence": 0.7472039580742202,
+        "accuracy": 0.7468710888610763
+      },
+      {
+        "bin": 8,
+        "lower": 0.8,
+        "upper": 0.9,
+        "count": 2084,
+        "mean_confidence": 0.8455831726789378,
+        "accuracy": 0.8478886756238004
+      },
+      {
+        "bin": 9,
+        "lower": 0.9,
+        "upper": 1.0,
+        "count": 913,
+        "mean_confidence": 0.9349462438342898,
+        "accuracy": 0.9156626506024096
+      }
+    ]
+  },
+  "generalization_gap": {
+    "logreg_wd1e-01_s0_test": -0.21340992385354662,
+    "mlp_wd1e-01_h256_s0_test": -0.10603643247285965,
+    "logreg_wd1e-01_s1_test": -0.19220704785298304,
+    "mlp_wd1e-01_h256_s1_test": 0.058656010701363503,
+    "logreg_wd1e-01_s2_test": -0.2178713560836968,
+    "mlp_wd1e-01_h256_s2_test": 0.06375476211534548,
+    "claim_only_wd0.1_s0_test": -0.15837348208566493
+  },
+  "verdict": "not established"
+}
