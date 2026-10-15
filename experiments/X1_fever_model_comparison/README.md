@@ -255,7 +255,50 @@ If that is right, the experiment's design limited its outcome before any model w
 What the negative control and the baselines protect: the shuffled-label model scored at the prior (0.235), so the pipeline cannot score without real labels; the torch logistic regression is within 0.02 of scikit-learn's converged solution, so the training loop reaches the linear optimum; the seeded rerun reproduced every metric to zero difference; and the claim-only baseline reproduces the known FEVER annotation artifact (macro-F1 0.71 on SUPPORTS and REFUTES from the claim text alone on validation, matching the tutor pilot's 0.71). The systems were compared on the same features, the same claims, and the same pages, with the page as the unit throughout.
 
 ## Error Analysis
-After the test-set read: real failure cases from the test set and what they share. Planned cuts: claims whose gold sentence was not in the five retrieved (the retrieval ceiling); NOT ENOUGH INFO claims whose inferred page was wrong; claims that cite a second page that was not read; disagreements between the two systems.
+Read from `results/test/predictions/` (seed 0 of each system) joined to the test rows of `claims.parquet` by position. No model was scored again. Numbers in `results/test/error_analysis.json` and `error_analysis_cuts.csv`.
+
+### Cuts
+Accuracy is reported alongside macro-F1 because within a cut of one or two labels macro-F1 averages over absent classes.
+
+| Cut | n | LogReg macro-F1 | LogReg acc | MLP macro-F1 | MLP acc | Claim-only acc |
+| --- | --- | --- | --- | --- | --- | --- |
+| All test claims | 24,648 | 0.557 | 0.633 | 0.549 | 0.623 | 0.612 |
+| SUPPORTS/REFUTES, every gold sentence among the five retrieved | 15,286 | 0.475 | 0.745 | 0.465 | 0.726 | 0.713 |
+| SUPPORTS/REFUTES, some gold retrieved | 1,946 | 0.519 | 0.798 | 0.515 | 0.793 | 0.795 |
+| SUPPORTS/REFUTES, no gold sentence retrieved | 1,184 | 0.457 | 0.698 | 0.449 | 0.690 | 0.685 |
+| SUPPORTS/REFUTES, gold on the primary page only | 15,219 | 0.475 | 0.741 | 0.466 | 0.727 | 0.706 |
+| SUPPORTS/REFUTES, cites a second page that was not read | 3,197 | 0.500 | 0.776 | 0.487 | 0.751 | 0.787 |
+| NOT ENOUGH INFO (page inferred by title match) | 6,232 | | 0.295 | | 0.304 | 0.294 |
+| Pages with 20 claims or fewer | 2,100 | 0.510 | 0.551 | 0.502 | 0.541 | 0.543 |
+| Pages with 21 to 60 claims | 12,443 | 0.576 | 0.648 | 0.568 | 0.636 | 0.630 |
+| Pages with more than 60 claims | 10,105 | 0.542 | 0.632 | 0.532 | 0.624 | 0.604 |
+
+Per-label accuracy (recall), logreg / MLP / claim-only: SUPPORTS 0.871 / 0.857 / 0.831; REFUTES 0.460 / 0.438 / 0.461; NOT ENOUGH INFO 0.295 / 0.304 / 0.294.
+
+**The retrieval ceiling is not the ceiling.** The planned cut was claims whose gold sentence was not among the five retrieved. Those claims are scored 0.698 by logistic regression; claims with every gold sentence present are scored 0.745; the claim-only model, which reads no evidence at all, scores 0.713 on that same all-gold cut. Having the cited sentence in the input is worth about three points of accuracy over not reading the input. The 11 percent retrieval miss rate stated in Limits costs almost nothing because the models were not using the retrieved sentences much when they were there.
+
+**Citing a second page did not hurt.** Claims whose gold evidence spans a second page, which was never read, are scored higher (0.776) than claims whose evidence is on the primary page alone (0.741), and the claim-only model is highest on them (0.787). These claims are not harder for these models; they are claims the claim text alone resolves. The stated limit holds as a limit of the input, not as a measured cost.
+
+**NOT ENOUGH INFO is where both systems fail.** Recall 0.30 for both. The NEI cut cannot be split into right and wrong inferred pages because NEI claims have no gold page; what can be said is that the whole NEI label behaves the same way, whichever system, and the same as the claim-only model, so the inferred evidence is not what decides these claims.
+
+**Small pages are harder.** Pages with 20 claims or fewer score 0.55, pages with 21 to 60 claims 0.65. Small pages are short articles with less text to retrieve from and fewer training claims about them.
+
+### Where the two systems disagree
+The systems disagree on 2,029 of 24,648 claims (8.2 percent). On those, logistic regression is right 975 times, the MLP 731, neither 323. The MLP's disagreements move claims across the SUPPORTS / NOT ENOUGH INFO boundary: logreg SUPPORTS -> MLP NEI 748 claims, logreg NEI -> MLP SUPPORTS 542. On REFUTES they barely differ. The MLP is not seeing something different in the evidence; it draws the same boundary in a slightly different place and loses a little on balance. Both are wrong on 8,317 claims (34 percent): 4,056 NEI, 2,869 REFUTES, 1,392 SUPPORTS.
+
+### Real failure cases
+Claim, the first of the five retrieved sentences, the true label, and each system's label with its confidence.
+
+1. **Contradiction by one word, gold sentence present.** "Venus is called Earth's 'brother planet.'" Evidence: "Venus ... is sometimes called Earth's 'sister planet' because of their similar size, mass ..." True REFUTES; logreg SUPPORTS 0.79, MLP SUPPORTS 0.80. The claim and the evidence share "Venus", "Earth", "called", "planet". The one word that decides the label, "brother" against "sister", is one column in each block with no relation between them.
+2. **Antonym, gold present.** "The Republican Party is socially liberal." Evidence: "... the Republican Party is socially conservative ..." True REFUTES; both SUPPORTS at 0.83 and 0.81. Same mechanism: "socially" and "Republican Party" overlap; "liberal" and "conservative" are unrelated columns.
+3. **Wrong entity, gold present.** "The Flash is based on Hal Jordan." Evidence: "It is based on the DC Comics character Barry Allen / Flash ..." True REFUTES; both SUPPORTS at 0.70 and 0.69. "based on" overlaps; which name follows it does not register.
+4. **NEI about the right page.** "Venus is a dwarf planet." Evidence: the same Venus sentences as case 1. True NOT ENOUGH INFO; logreg SUPPORTS 0.45, MLP SUPPORTS 0.55. The NEI claim was written about this page, the title-match rule found the page, and the retrieved sentences share its vocabulary, so the overlap looks like support. This is the dominant NEI failure: 3,539 of 6,232 NEI claims are called SUPPORTS by both systems.
+5. **Supported by a sentence that was retrieved, called NEI.** "Urine contains bilirubin." Evidence: "Bilirubin is excreted in bile and urine ..." True SUPPORTS; logreg NEI 0.60, MLP NEI 0.80. A short claim with little overlap beyond "bilirubin" and "urine" reads as NEI to both, and the MLP is more confident in the wrong answer, which is the calibration pattern from the Result tables.
+6. **The MLP overcommits.** "Amerigo Vespucci was from Europe." Evidence: "... was an Italian explorer ..." True SUPPORTS; logreg SUPPORTS 0.42, MLP NOT ENOUGH INFO 0.71. "Europe" does not appear in the evidence; "Italian" does. Logistic regression leans weakly toward support, the MLP commits to NEI. Among the fifty claims where logreg is right and the MLP is most confidently wrong, this shape repeats: the MLP's wrong label carries 0.65 to 0.75 confidence.
+7. **No gold retrieved, still called SUPPORTS.** "Precious premiered in 1977." Evidence: "... is a 2009 American drama film ..." True REFUTES; both SUPPORTS at 0.75. The year that refutes the claim is present in the retrieved text but is just another token, and "1977" is a column the evidence block does not light.
+
+### What they share
+Every case is the same failure: the label depends on a relation between a specific claim token and a specific evidence token (brother/sister, liberal/conservative, Hal Jordan/Barry Allen, 1977/2009, Europe/Italian), and the input encodes which tokens are present on each side but not whether they agree. Overlap and cosine, the only cross-side features, rise whenever the claim is about the page at all, which is true for every FEVER claim including the NOT ENOUGH INFO ones, so they say "this claim is about this page", not "this page confirms this claim". The MLP, which could in principle combine positions, had no positions to combine that carry the relation. This is the same conclusion the Result's discussion reaches from the baselines, now seen claim by claim.
 
 ## Deviations
 `claim.json` is not yet frozen. These are changes to the proposed training settings made during the pilot, with the observation that forced each one, so the design review sees them. The feature settings (`ngram_range` (1, 2), `min_df` 2), the split, the evidence rule and the systems are unchanged. Implementation changes that do not alter what is trained (sparse GPU batches, the dashboard) are not design deviations and are described under Reproduction.

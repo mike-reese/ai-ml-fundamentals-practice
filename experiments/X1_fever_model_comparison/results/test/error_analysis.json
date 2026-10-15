@@ -1,0 +1,135 @@
+{
+  "cuts": [
+    {
+      "cut": "all",
+      "n": 24648,
+      "logreg_macro_f1": 0.5571331260574945,
+      "logreg_accuracy": 0.6329113924050633,
+      "mlp_macro_f1": 0.5487638042699291,
+      "mlp_accuracy": 0.6230120090879585,
+      "claim_only_accuracy": 0.6120172022070757
+    },
+    {
+      "cut": "SR_all_gold_retrieved",
+      "n": 15286,
+      "logreg_macro_f1": 0.4753366779145723,
+      "logreg_accuracy": 0.7446683239565616,
+      "mlp_macro_f1": 0.46484112286750845,
+      "mlp_accuracy": 0.726220070652885,
+      "claim_only_accuracy": 0.7127436870338872
+    },
+    {
+      "cut": "SR_some_gold_retrieved",
+      "n": 1946,
+      "logreg_macro_f1": 0.5184879567551047,
+      "logreg_accuracy": 0.7980472764645427,
+      "mlp_macro_f1": 0.514665821600495,
+      "mlp_accuracy": 0.7929085303186023,
+      "claim_only_accuracy": 0.7949640287769785
+    },
+    {
+      "cut": "SR_no_gold_retrieved",
+      "n": 1184,
+      "logreg_macro_f1": 0.45657489534604273,
+      "logreg_accuracy": 0.6976351351351351,
+      "mlp_macro_f1": 0.4489235338592212,
+      "mlp_accuracy": 0.6900337837837838,
+      "claim_only_accuracy": 0.6849662162162162
+    },
+    {
+      "cut": "SR_primary_page_only",
+      "n": 15219,
+      "logreg_macro_f1": 0.4751283354418268,
+      "logreg_accuracy": 0.7413102043498259,
+      "mlp_macro_f1": 0.4662351429752616,
+      "mlp_accuracy": 0.726788882318155,
+      "claim_only_accuracy": 0.7054997043169722
+    },
+    {
+      "cut": "SR_second_page_cited",
+      "n": 3197,
+      "logreg_macro_f1": 0.5000480739698149,
+      "logreg_accuracy": 0.7757272442915233,
+      "mlp_macro_f1": 0.4874420104298461,
+      "mlp_accuracy": 0.7507037847982484,
+      "claim_only_accuracy": 0.7869878010634971
+    },
+    {
+      "cut": "NEI_inferred_page",
+      "n": 6232,
+      "logreg_macro_f1": 0.15183808343659647,
+      "logreg_accuracy": 0.29492939666238766,
+      "mlp_macro_f1": 0.1554489151388376,
+      "mlp_accuracy": 0.3040757381258023,
+      "claim_only_accuracy": 0.2939666238767651
+    },
+    {
+      "cut": "page_le_20_claims",
+      "n": 2100,
+      "logreg_macro_f1": 0.5101473488535351,
+      "logreg_accuracy": 0.550952380952381,
+      "mlp_macro_f1": 0.501606535513749,
+      "mlp_accuracy": 0.5414285714285715,
+      "claim_only_accuracy": 0.5433333333333333
+    },
+    {
+      "cut": "page_21_60_claims",
+      "n": 12443,
+      "logreg_macro_f1": 0.5756878697715088,
+      "logreg_accuracy": 0.647673390661416,
+      "mlp_macro_f1": 0.5683404130981485,
+      "mlp_accuracy": 0.6357791529373945,
+      "claim_only_accuracy": 0.629912400546492
+    },
+    {
+      "cut": "page_gt_60_claims",
+      "n": 10105,
+      "logreg_macro_f1": 0.5420071653531818,
+      "logreg_accuracy": 0.6317664522513607,
+      "mlp_macro_f1": 0.5321923069748344,
+      "mlp_accuracy": 0.6242454230578921,
+      "claim_only_accuracy": 0.6042553191489362
+    }
+  ],
+  "per_label_accuracy": {
+    "SUPPORTS": {
+      "logreg": 0.8706622156664855,
+      "mlp": 0.8567657790544212,
+      "claim_only": 0.8309137489325363
+    },
+    "REFUTES": {
+      "logreg": 0.46016260162601624,
+      "mlp": 0.43812104787714545,
+      "claim_only": 0.46070460704607047
+    },
+    "NOT ENOUGH INFO": {
+      "logreg": 0.29492939666238766,
+      "mlp": 0.3040757381258023,
+      "claim_only": 0.2939666238767651
+    }
+  },
+  "disagreements": {
+    "n": 2029,
+    "logreg_right": 975,
+    "mlp_right": 731,
+    "neither": 323,
+    "pattern_logreg_to_mlp": {
+      "SUPPORTS->REFUTES": 179,
+      "SUPPORTS->NOT ENOUGH INFO": 748,
+      "REFUTES->SUPPORTS": 242,
+      "REFUTES->NOT ENOUGH INFO": 218,
+      "NOT ENOUGH INFO->SUPPORTS": 542,
+      "NOT ENOUGH INFO->REFUTES": 100
+    }
+  },
+  "both_wrong": {
+    "n": 8317,
+    "by_true_label": {
+      "NOT ENOUGH INFO": 4056,
+      "REFUTES": 2869,
+      "SUPPORTS": 1392
+    }
+  },
+  "source": "results/test/predictions seed 0, joined to data/fever/claims.parquet test rows by position",
+  "models": "seed 0 of each system"
+}
