@@ -2,7 +2,7 @@
 
 Exercises and experiments I wrote while studying ML fundamentals.
 
-The tasks were set by an AI tutor (Claude). I wrote all the code here without AI code generation. The tutor reviewed each commit after I pushed it. Reps are exercises. Only the items under Experiments are findings.
+The tasks were set by an AI tutor (Claude). I wrote the rep code without AI code generation; the tutor reviewed each commit after I pushed it. For experiment X1 the data-assembly script and most of the pipeline code were written agentically by the tutor at my request, with the model code and the design decisions mine; its README records who wrote what. Reps are exercises. Only the items under Experiments are findings.
 
 ## Reps
 
@@ -21,8 +21,9 @@ The tasks were set by an AI tutor (Claude). I wrote all the code here without AI
 
 ## Experiments
 
-| Experiment | Finding | Verdict | Units |
-| --- | --- | --- | --- |
+| Experiment | Finding | Verdict | Units | Status |
+| --- | --- | --- | --- | --- |
+| [`X1`](experiments/X1_fever_model_comparison/README.md) | On FEVER claim verification with the page given, a one-hidden-layer MLP did not outperform multinomial logistic regression on the same TF-IDF features: macro-F1 difference -0.028, 95% page-unit interval [-0.033, -0.022], lower on every seed. Reading the evidence added 0.013 macro-F1 over the claim text alone; every inspected failure turned on a token relation the bag-of-words input does not encode. | not established | 615 held-out Wikipedia pages (24,648 claims), 3 training seeds, 2,000 page resamples | complete |
 
 ## Layout
 
