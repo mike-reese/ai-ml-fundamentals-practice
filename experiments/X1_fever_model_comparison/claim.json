@@ -1,0 +1,50 @@
+{
+  "experiment": "X1_fever_model_comparison",
+  "frozen": "2026-10-15",
+  "question": "On FEVER claim verification with the page given, does a one-hidden-layer MLP outperform multinomial logistic regression on the same TF-IDF features, measured by macro-F1 on held-out Wikipedia pages?",
+  "claim": "The one-hidden-layer MLP outperforms multinomial logistic regression on FEVER claim verification with the page given, on the same TF-IDF features, measured by macro-F1 on held-out Wikipedia pages.",
+  "hypothesis": "The MLP outperforms by a small margin, under 0.03 macro-F1, with a page-unit confidence interval that may include zero. Pilot on the validation split (2026-10-15): the MLP scored below logistic regression by 0.026 mean over three seeds under the declared stopping rule; the pilot therefore predicts the hypothesis is not supported.",
+  "decision_rule": "Supported when the 95% page-unit percentile-bootstrap interval of the mean (over seeds) MLP-minus-logreg macro-F1 difference on the test split excludes 0 in the MLP's favor (lower bound > 0); otherwise not established.",
+  "primary_metric": "macro-F1, sklearn.metrics.f1_score(average='macro'), label order SUPPORTS, REFUTES, NOT ENOUGH INFO",
+  "unit": "page: the claim's primary page; the split and the bootstrap both use it",
+  "data": {
+    "dataset": "FEVER v1.0, fever.ai claim files and wiki-pages.zip, pinned by SHA-256 in scripts/get_data.py",
+    "data_card": "data/fever/data_card.json",
+    "split": {"by": "primary page", "shares_of_pages": {"training": 0.70, "validation": 0.15, "test": 0.15}, "seed": 20261013,
+              "pages": {"training": 2873, "validation": 616, "test": 615},
+              "claims": {"training": 114883, "validation": 25018, "test": 24648}},
+    "evidence": {"rule": "top-k sentences of the primary page by TF-IDF cosine to the claim, fitted on the training split", "k": 5}
+  },
+  "features": {"ngram_range": [1, 2], "min_df": 2, "vocabulary_size": 293437, "input_width": 586876,
+               "blocks": "claim block, evidence block, overlap count and cosine standardized with training mean and std; claim-only baseline receives the claim block alone"},
+  "training": {"optimizer": "AdamW", "learning_rate": 0.01, "batch_size": 256, "max_epochs": 30, "patience": 3,
+               "early_stopping": "validation log loss; the weights of the best validation-loss epoch are restored",
+               "loss": "cross-entropy on the logits"},
+  "systems": {
+    "logreg": {"model": "MultinomialLogisticRegression, one linear layer F -> 3", "weight_decay": 0.1, "hidden_size": null,
+               "chosen_by": "mean validation macro-F1 over seeds 0, 1, 2 across the grid", "pilot_validation_macro_f1_mean": 0.5520},
+    "mlp": {"model": "OneHiddenLayerMLP, linear F -> 256, ReLU, linear 256 -> 3", "weight_decay": 0.1, "hidden_size": 256,
+            "chosen_by": "mean validation macro-F1 over seeds 0, 1, 2 across the grid", "pilot_validation_macro_f1_mean": 0.5258}
+  },
+  "grid": {"weight_decay": [0.0, 0.01, 0.1, 1.0], "hidden_sizes": [256]},
+  "seeds": [0, 1, 2],
+  "bootstrap": {"unit": "page", "n_resamples": 2000, "level": 0.95, "method": "percentile; one draw takes 615 pages with replacement and scores every seed's pair of systems on the same pages, then averages the per-seed differences",
+                "secondary": "claim-unit interval reported as one line; per-seed page-unit intervals reported"},
+  "sizing": {"source": "pilot on the validation split, 616 pages", "se_at_616_pages": 0.0028, "fit_c_over_sqrt_pages": 0.0705,
+             "expected_half_width_at_615_test_pages": 0.0056,
+             "intra_page_correlation_of_correctness": {"logreg": 0.038, "mlp": 0.041}, "design_effect": 2.5},
+  "baselines": {"majority_class": "training majority (SUPPORTS) for every test claim",
+                "claim_only": "logreg with the chosen logreg decay on the claim block alone, seed 0",
+                "library_check": "sklearn.linear_model.LogisticRegression, C = 1, on the same features (validation only)"},
+  "checks": [
+    {"quantity": "Vectorizer vocabulary fitted on the training set only", "condition": "no term that occurs only in the validation or test set is in it", "tolerance": "exact"},
+    {"quantity": "Torch logistic regression against sklearn LogisticRegression, same features, validation macro-F1", "condition": "within 0.02", "tolerance": 0.02},
+    {"quantity": "Shuffled training labels, negative control", "condition": "validation macro-F1 at chance: within 0.05 of 1/3 (uniform) or of the majority-class macro-F1 (prior only)", "tolerance": 0.05},
+    {"quantity": "Seeded rerun", "condition": "the same seed reproduces the saved validation metrics", "tolerance": 1e-6},
+    {"quantity": "Pages in two splits", "condition": "none", "tolerance": "exact"},
+    {"quantity": "Claims in two splits", "condition": "none", "tolerance": "exact"}
+  ],
+  "test_set_read": {"rule": "once, by run.py test, after this file is committed; run.py refuses to run twice", "reads": "2 systems x 3 seeds + 1 claim-only baseline = 7 predict_proba calls in one invocation"},
+  "secondary_analyses": ["log loss and calibration bins", "per-class precision, recall, F1, support; confusion matrices; accuracy", "generalization gap per system and seed",
+                         "distance to the majority-class and claim-only baselines", "seed spread of the difference", "claim-unit interval"]
+}

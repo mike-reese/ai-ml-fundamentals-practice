@@ -1,0 +1,351 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>X1 Training Runs</title>
+<style>
+  :root {
+    color-scheme: light;
+    --surface-1: #fcfcfb; --surface-2: #f1f0ed; --grid: #e4e3df;
+    --text-primary: #0b0b0b; --text-secondary: #52514e; --text-muted: #8a8984;
+    --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a; --s4: #eda100;
+    --s5: #e87ba4; --s6: #008300; --s7: #6250d6; --s8: #e34948;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --surface-1: #1a1a19; --surface-2: #242423; --grid: #333331;
+      --text-primary: #f0efec; --text-secondary: #c3c2b7; --text-muted: #8a8984;
+      --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500;
+      --s5: #d55181; --s6: #008300; --s7: #9085e9; --s8: #e66767;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --surface-1: #1a1a19; --surface-2: #242423; --grid: #333331;
+    --text-primary: #f0efec; --text-secondary: #c3c2b7; --text-muted: #8a8984;
+    --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500;
+    --s5: #d55181; --s6: #008300; --s7: #9085e9; --s8: #e66767;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 20px 16px; background: var(--surface-1); color: var(--text-primary);
+         font: 14px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  header { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 20px; margin-bottom: 12px; }
+  h1 { font-size: 18px; font-weight: 600; margin: 0; }
+  #status { color: var(--text-secondary); }
+  #toolbar { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; margin-bottom: 12px; }
+  #toolbar .seg { display: inline-flex; border: 1px solid var(--grid); border-radius: 6px; overflow: hidden; }
+  #toolbar .seg button { border: 0; border-radius: 0; background: transparent; }
+  #toolbar .seg button[aria-pressed="true"] { background: var(--surface-2); font-weight: 600; }
+  #controls { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+  .group { border: 1px solid var(--grid); border-radius: 8px; padding: 6px 10px; }
+  .group-head { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; cursor: pointer; }
+  .group-head .name { font-weight: 600; }
+  .group-head .meta { color: var(--text-secondary); font-size: 12px; }
+  .group-head .caret { color: var(--text-muted); width: 1em; display: inline-block; }
+  .group-runs { display: flex; flex-wrap: wrap; gap: 4px 16px; margin: 6px 0 2px 22px; }
+  .group[data-collapsed="true"] .group-runs { display: none; }
+  #controls label { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
+  .swatch { display: inline-block; width: 14px; height: 3px; border-radius: 2px; }
+  .swatch.key { width: 18px; }
+  button { font: inherit; padding: 4px 10px; border: 1px solid var(--grid); border-radius: 6px;
+           background: var(--surface-2); color: var(--text-primary); cursor: pointer; }
+  button[aria-pressed="true"] { border-color: var(--text-secondary); }
+  .charts { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 20px; }
+  .chart { background: var(--surface-1); }
+  .chart h2 { font-size: 14px; font-weight: 600; margin: 0 0 2px; }
+  .chart .sub { color: var(--text-secondary); font-size: 12px; margin: 0 0 6px; }
+  .chart svg { width: 100%; height: auto; display: block; }
+  .chart .legend { display: flex; flex-wrap: wrap; gap: 4px 16px; margin-top: 6px; font-size: 12px; color: var(--text-secondary); }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .grid line { stroke: var(--grid); stroke-width: 1; }
+  .axis text { fill: var(--text-muted); font-size: 11px; }
+  .series path { fill: none; stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+  .series path.train { stroke-width: 1.5; opacity: 0.45; }
+  .series circle { stroke: var(--surface-1); stroke-width: 2; }
+  .crosshair { stroke: var(--text-muted); stroke-width: 1; pointer-events: none; }
+  .hit { fill: transparent; }
+  #tip { position: fixed; pointer-events: none; display: none; background: var(--surface-2); color: var(--text-primary);
+         border: 1px solid var(--grid); border-radius: 6px; padding: 8px 10px; font-size: 12px; max-width: 320px; z-index: 2; }
+  #tip table { border-collapse: collapse; }
+  #tip td { padding: 1px 6px 1px 0; white-space: nowrap; }
+  #tip td.num { text-align: right; font-variant-numeric: tabular-nums; }
+  #tableview { margin-top: 20px; overflow-x: auto; }
+  #tableview table { border-collapse: collapse; font-size: 12px; font-variant-numeric: tabular-nums; }
+  #tableview th, #tableview td { padding: 3px 10px; border-bottom: 1px solid var(--grid); text-align: right; white-space: nowrap; }
+  #tableview th:first-child, #tableview td:first-child { text-align: left; }
+  #tableview th { color: var(--text-secondary); font-weight: 600; position: sticky; top: 0; background: var(--surface-1); }
+  .empty { color: var(--text-secondary); padding: 40px 0; }
+</style>
+</head>
+<body>
+<header>
+  <h1>X1 training runs</h1>
+  <span id="status">connecting…</span>
+</header>
+<div id="toolbar"></div>
+<div id="controls"></div>
+<div class="charts">
+  <div class="chart" id="loss">
+    <h2>Loss per epoch</h2>
+    <p class="sub">Cross-entropy. Blue: logreg, orange: mlp, one line per run. Full line: validation. Faint line: training. Ring: best validation epoch so far. Hover for the run.</p>
+  </div>
+  <div class="chart" id="f1">
+    <h2>Validation macro-F1 per epoch</h2>
+    <p class="sub">Ring: epoch with the lowest validation loss so far.</p>
+  </div>
+</div>
+<div id="tableview" hidden></div>
+<div id="tip"></div>
+
+<script>
+const theme = new URLSearchParams(location.search).get("theme");
+if (theme === "light" || theme === "dark") document.documentElement.dataset.theme = theme;
+const PALETTE = ["--s1","--s2","--s3","--s4","--s5","--s6","--s7","--s8"];
+const POLL_MS = 3000;
+const colorOf = new Map();       // run_name -> css var; assigned on first sight, never reassigned
+const hidden = new Set();        // run_names the viewer unchecked
+const collapsed = new Set();     // executions whose run list is folded
+let systemFilter = "all";        // "all" | "logreg" | "mlp"
+let runs = [];
+let showTable = false;
+let seenExecutions = null;       // null until the first poll; then every execution shown so far
+
+function executionOf(r) { return (r.rows[0] && r.rows[0].execution) || "ungrouped"; }
+
+function groupsOf(list) {
+  // newest execution first: names carry a timestamp (pilot_YYYYMMDD_HHMMSS...), so reverse sort works
+  const by = new Map();
+  for (const r of list) { const e = executionOf(r); if (!by.has(e)) by.set(e, []); by.get(e).push(r); }
+  return [...by.entries()].sort((a, b) => (a[0] === "ungrouped") - (b[0] === "ungrouped") || b[0].localeCompare(a[0]));
+}
+
+function isVisible(r) {
+  return !hidden.has(r.run_name) && r.rows.length && (systemFilter === "all" || r.system === systemFilter);
+}
+
+function cssVar(name) { return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
+
+const SYSTEM_SLOT = { logreg: "--s1", mlp: "--s2" };   // color follows the system, not the run: a grid has 24 runs
+function slotFor(system) {
+  if (!system) return "--text-muted";                 // a run whose file has no rows yet; recomputed on the next poll
+  if (!SYSTEM_SLOT[system]) {                          // an unknown system takes the next free slot, once
+    const used = new Set(Object.values(SYSTEM_SLOT));
+    SYSTEM_SLOT[system] = PALETTE.find(p => !used.has(p)) ?? "--text-muted";
+  }
+  return SYSTEM_SLOT[system];
+}
+function assignColors(list) {
+  for (const r of list) colorOf.set(r.run_name, slotFor(r.system));  // every poll, so an empty file's run gets its color once rows arrive
+}
+
+async function poll() {
+  try {
+    const res = await fetch("/runs", { cache: "no-store" });
+    runs = await res.json();
+    assignColors(runs);
+    const groups = groupsOf(runs);
+    if (seenExecutions === null) {             // first load: show the newest execution only
+      seenExecutions = new Set(groups.map(g => g[0]));
+      for (const [e, list] of groups.slice(1)) { for (const r of list) hidden.add(r.run_name); collapsed.add(e); }
+    } else {                                   // a new execution started while watching: show it, fold the rest
+      for (const [e, list] of groups) if (!seenExecutions.has(e)) {
+        seenExecutions.add(e);
+        for (const [e2, l2] of groups) if (e2 !== e) { for (const r of l2) hidden.add(r.run_name); collapsed.add(e2); }
+      }
+    }
+    const live = runs.filter(r => r.rows.length).length;
+    document.getElementById("status").textContent =
+      `${runs.length} run${runs.length === 1 ? "" : "s"} · last read ${new Date().toLocaleTimeString()}`;
+    render();
+  } catch (e) {
+    document.getElementById("status").textContent = "server unreachable; retrying";
+  }
+  setTimeout(poll, POLL_MS);
+}
+
+function render() {
+  renderControls();
+  const visible = runs.filter(isVisible);
+  drawChart("loss", visible, [
+    { key: "val_loss", cls: "val" }, { key: "train_loss", cls: "train" }
+  ], { label: "loss", fmt: v => v.toFixed(3) });
+  drawChart("f1", visible, [{ key: "val_macro_f1", cls: "val" }], { label: "macro-F1", fmt: v => v.toFixed(3) });
+  renderTable();
+}
+
+function button(label, onclick, pressed) {
+  const b = document.createElement("button"); b.textContent = label; b.onclick = onclick;
+  if (pressed !== undefined) b.setAttribute("aria-pressed", String(pressed));
+  return b;
+}
+
+function renderControls() {
+  const t = document.getElementById("toolbar");
+  t.innerHTML = "";
+  const seg = document.createElement("span"); seg.className = "seg";
+  for (const [key, label] of [["all", "All systems"], ["logreg", "logreg"], ["mlp", "mlp"]])
+    seg.append(button(label, () => { systemFilter = key; render(); }, systemFilter === key));
+  t.append(seg);
+  t.append(button("Show all", () => { hidden.clear(); render(); }));
+  t.append(button("Hide all", () => { for (const r of runs) hidden.add(r.run_name); render(); }));
+  t.append(button(showTable ? "Hide table" : "Show table", () => { showTable = !showTable; render(); }, showTable));
+
+  const c = document.getElementById("controls");
+  c.innerHTML = "";
+  for (const [execution, list] of groupsOf(runs)) {
+    const g = document.createElement("div"); g.className = "group"; g.dataset.collapsed = String(collapsed.has(execution));
+    const head = document.createElement("div"); head.className = "group-head";
+    const cb = document.createElement("input"); cb.type = "checkbox";
+    const shown = list.filter(r => !hidden.has(r.run_name)).length;
+    cb.checked = shown === list.length; cb.indeterminate = shown > 0 && shown < list.length;
+    cb.onclick = ev => { ev.stopPropagation(); for (const r of list) cb.checked ? hidden.delete(r.run_name) : hidden.add(r.run_name); render(); };
+    const caret = document.createElement("span"); caret.className = "caret"; caret.textContent = collapsed.has(execution) ? "▸" : "▾";
+    const name = document.createElement("span"); name.className = "name"; name.textContent = execution;
+    const systems = {}; for (const r of list) systems[r.system || "?"] = (systems[r.system || "?"] || 0) + 1;
+    const epochs = list.reduce((n, r) => n + r.rows.length, 0);
+    const meta = document.createElement("span"); meta.className = "meta";
+    meta.textContent = `${list.length} run${list.length === 1 ? "" : "s"} (${Object.entries(systems).map(([k, v]) => `${v} ${k}`).join(", ")}) · ${epochs} epochs · ${shown} shown`;
+    head.append(cb, caret, name, meta);
+    head.onclick = () => { collapsed.has(execution) ? collapsed.delete(execution) : collapsed.add(execution); render(); };
+    g.append(head);
+    const runsEl = document.createElement("div"); runsEl.className = "group-runs";
+    for (const r of list) {
+      const lab = document.createElement("label");
+      const rcb = document.createElement("input");
+      rcb.type = "checkbox"; rcb.checked = !hidden.has(r.run_name);
+      rcb.onchange = () => { rcb.checked ? hidden.delete(r.run_name) : hidden.add(r.run_name); render(); };
+      const sw = document.createElement("span"); sw.className = "swatch"; sw.style.background = `var(${colorOf.get(r.run_name)})`;
+      const dim = systemFilter !== "all" && r.system !== systemFilter;
+      lab.style.opacity = dim ? 0.45 : 1;
+      lab.append(rcb, sw, document.createTextNode(`${r.run_name} (${r.rows.length} ep)`));
+      runsEl.append(lab);
+    }
+    g.append(runsEl);
+    c.append(g);
+  }
+}
+
+function bestEpochIndex(rows) {
+  let best = -1, bestV = Infinity;
+  rows.forEach((row, i) => { if (typeof row.val_loss === "number" && row.val_loss < bestV) { bestV = row.val_loss; best = i; } });
+  return best;
+}
+
+function niceTicks(lo, hi, n = 5) {
+  const span = hi - lo || 1;
+  const raw = span / n, mag = Math.pow(10, Math.floor(Math.log10(raw)));
+  const step = [1, 2, 2.5, 5, 10].map(m => m * mag).find(s => span / s <= n) ?? mag * 10;
+  const ticks = [];
+  for (let v = Math.ceil(lo / step) * step; v <= hi + 1e-9; v += step) ticks.push(+v.toFixed(10));
+  return ticks;
+}
+
+function drawChart(id, visible, measures, opt) {
+  const host = document.getElementById(id);
+  host.querySelectorAll("svg, .legend, .empty").forEach(e => e.remove());
+  if (!visible.length) {
+    const p = document.createElement("p"); p.className = "empty"; p.textContent = "No runs yet. Waiting for results/*.jsonl.";
+    host.append(p); return;
+  }
+  const W = 560, H = 300, m = { t: 12, r: 16, b: 36, l: 52 };
+  const pw = W - m.l - m.r, ph = H - m.t - m.b;
+
+  const pts = [];
+  for (const r of visible) for (const mm of measures) for (const row of r.rows)
+    if (typeof row[mm.key] === "number") pts.push({ x: row.epoch, y: row[mm.key] });
+  const maxEpoch = Math.max(1, ...pts.map(p => p.x));
+  let ylo, yhi;
+  if (opt.domain) [ylo, yhi] = opt.domain;
+  else {
+    const ys = pts.map(p => p.y); ylo = Math.min(...ys); yhi = Math.max(...ys);
+    const pad = (yhi - ylo || 0.1) * 0.08; ylo -= pad; yhi += pad; if (ylo < 0 && Math.min(...ys) >= 0) ylo = 0;
+  }
+  const sx = x => m.l + (x - 1) / Math.max(1, maxEpoch - 1) * pw;
+  const sy = y => m.t + (yhi - y) / (yhi - ylo) * ph;
+
+  const NS = "http://www.w3.org/2000/svg";
+  const el = (tag, attrs = {}, parent) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.append(e); return e; };
+  const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": `${opt.label} per epoch` });
+
+  const grid = el("g", { class: "grid" }, svg), axis = el("g", { class: "axis" }, svg);
+  for (const t of niceTicks(ylo, yhi)) {
+    el("line", { x1: m.l, x2: W - m.r, y1: sy(t), y2: sy(t) }, grid);
+    el("text", { x: m.l - 6, y: sy(t) + 4, "text-anchor": "end" }, axis).textContent = opt.fmt(t);
+  }
+  const xTicks = niceTicks(1, maxEpoch, 8).filter(t => Number.isInteger(t) && t >= 1);
+  for (const t of (xTicks.length ? xTicks : [1])) el("text", { x: sx(t), y: H - m.b + 16, "text-anchor": "middle" }, axis).textContent = t;
+  el("text", { x: m.l + pw / 2, y: H - 4, "text-anchor": "middle" }, axis).textContent = "epoch";
+
+  const series = el("g", { class: "series" }, svg);
+  for (const r of visible) {
+    const color = `var(${colorOf.get(r.run_name)})`;
+    for (const mm of measures) {
+      const rows = r.rows.filter(row => typeof row[mm.key] === "number");
+      if (!rows.length) continue;
+      const d = rows.map((row, i) => `${i ? "L" : "M"}${sx(row.epoch).toFixed(1)},${sy(row[mm.key]).toFixed(1)}`).join("");
+      el("path", { d, class: mm.cls, stroke: color }, series);
+      if (mm.cls === "val") {
+        const last = rows[rows.length - 1];
+        el("circle", { cx: sx(last.epoch), cy: sy(last[mm.key]), r: 4, fill: color }, series);
+        const b = bestEpochIndex(r.rows);
+        if (b >= 0 && typeof r.rows[b][mm.key] === "number")
+          el("circle", { cx: sx(r.rows[b].epoch), cy: sy(r.rows[b][mm.key]), r: 7, fill: "none", stroke: color, "stroke-width": 2 }, series);
+      }
+    }
+  }
+
+  // hover: crosshair on the nearest epoch, tooltip listing every visible run's values there
+  const cross = el("line", { class: "crosshair", y1: m.t, y2: m.t + ph, x1: -10, x2: -10, visibility: "hidden" }, svg);
+  const hit = el("rect", { class: "hit", x: m.l, y: m.t, width: pw, height: ph }, svg);
+  const tip = document.getElementById("tip");
+  hit.addEventListener("mousemove", ev => {
+    const box = svg.getBoundingClientRect();
+    const x = (ev.clientX - box.left) / box.width * W;
+    const epoch = Math.max(1, Math.min(maxEpoch, Math.round(1 + (x - m.l) / pw * Math.max(1, maxEpoch - 1))));
+    cross.setAttribute("x1", sx(epoch)); cross.setAttribute("x2", sx(epoch)); cross.setAttribute("visibility", "visible");
+    const lines = [];
+    for (const r of visible) {
+      const row = r.rows.find(rr => rr.epoch === epoch);
+      if (!row) continue;
+      const cells = measures.map(mm => typeof row[mm.key] === "number" ? `<td class="num">${opt.fmt(row[mm.key])}</td>` : "<td></td>").join("");
+      lines.push(`<tr><td><span class="swatch" style="background:var(${colorOf.get(r.run_name)})"></span> ${r.run_name}</td>${cells}</tr>`);
+    }
+    const head = `<tr><td>epoch ${epoch}</td>${measures.map(mm => `<td class="num">${mm.key.replace("_", " ")}</td>`).join("")}</tr>`;
+    tip.innerHTML = `<table>${head}${lines.join("")}</table>`;
+    tip.style.display = "block";
+    tip.style.left = Math.min(ev.clientX + 14, window.innerWidth - tip.offsetWidth - 8) + "px";
+    tip.style.top = Math.min(ev.clientY + 14, window.innerHeight - tip.offsetHeight - 8) + "px";
+  });
+  hit.addEventListener("mouseleave", () => { tip.style.display = "none"; cross.setAttribute("visibility", "hidden"); });
+  host.append(svg);
+
+  const legend = document.createElement("div"); legend.className = "legend";
+  for (const r of visible) {
+    const s = document.createElement("span");
+    const sw = document.createElement("i"); sw.className = "swatch key"; sw.style.background = `var(${colorOf.get(r.run_name)})`;
+    const b = bestEpochIndex(r.rows);
+    const best = b >= 0 ? ` · best ep ${r.rows[b].epoch}, val loss ${r.rows[b].val_loss.toFixed(3)}` : "";
+    s.append(sw, document.createTextNode(`${r.run_name}${best}`));
+    legend.append(s);
+  }
+  host.append(legend);
+}
+
+function renderTable() {
+  const host = document.getElementById("tableview");
+  host.hidden = !showTable;
+  if (!showTable) return;
+  const cols = ["run_name", "system", "epoch", "train_loss", "val_loss", "val_macro_f1", "seconds", "learning_rate", "weight_decay", "hidden_size", "seed"];
+  const fmt = v => typeof v === "number" ? (Number.isInteger(v) ? v : v.toPrecision(4)) : (v ?? "");
+  let html = "<table><thead><tr>" + cols.map(c => `<th>${c.replace(/_/g, " ")}</th>`).join("") + "</tr></thead><tbody>";
+  for (const r of runs) for (const row of r.rows)
+    html += "<tr>" + cols.map(c => `<td>${fmt(c === "run_name" ? r.run_name : row[c])}</td>`).join("") + "</tr>";
+  host.innerHTML = html + "</tbody></table>";
+}
+
+poll();
+</script>
+</body>
+</html>
