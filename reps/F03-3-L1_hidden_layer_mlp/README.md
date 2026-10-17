@@ -1,4 +1,4 @@
-# F03-3-L1 -- Hidden Layer MLP Backwards Pass
+# F03-3-L1 -- Hidden Layer MLP Backward Pass
 
 ## Mechanism
 One linear layer gives a logit that is a straight line in the input, so it can draw only one decision boundary. These targets need two. We put a hidden layer with a ReLU in front of F03-1-L1's output layer (one logit, sigmoid, binary cross-entropy) and write the backward pass by hand, from `∂L/∂z` to the four parameter tensors.

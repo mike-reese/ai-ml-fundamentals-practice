@@ -2,7 +2,8 @@
 
 Exercises and experiments I wrote while studying ML fundamentals.
 
-The tasks were set by an AI tutor (Claude). I wrote the rep code without AI code generation; the tutor reviewed each commit after I pushed it. For experiment X1 the data-assembly script and most of the pipeline code were written agentically by the tutor at my request, with the model code and the design decisions mine; its README records who wrote what. Reps are exercises. Only the items under Experiments are findings.
+The tasks were set by an AI tutor (Claude). Reps are exercises that teach the concepts. Only the items under Experiments are findings from real information using the concepts.
+
 
 ## Reps
 
@@ -18,6 +19,7 @@ The tasks were set by an AI tutor (Claude). I wrote the rep code without AI code
 | `F03-1-L1` | Logistic regression: stable sigmoid, binary cross-entropy from the logits, its gradient; 500 full-batch SGD steps | 1 | complete | `torch.nn.BCEWithLogitsLoss`, `torch.nn.Linear`, `torch.optim.SGD` |
 | `F03-2-L1` | Softmax cross-entropy from the logits and its gradient; gradients of a linear classifier and of a candidate scorer with one shared weight; full-batch SGD training of both | 1 | complete | `torch.nn.CrossEntropyLoss`, `torch.nn.Linear`, `torch.optim.SGD` |
 | `F03-3-L1` | One-hidden-layer MLP with ReLU: forward pass and backward pass by hand (the four parameter gradients, the ReLU mask); 1,000 full-batch SGD steps beside a single-layer baseline | 1 | complete | `torch.nn.Sequential(nn.Linear, nn.ReLU, nn.Linear)`, `torch.nn.BCEWithLogitsLoss`, `torch.optim.SGD` with autograd |
+| `F06A-L1` | Smoothed IDF from document frequency, the TF-IDF weight matrix, L2 normalization of document vectors and the ranked list for a binary query vector | 1 | complete | `sklearn.feature_extraction.text.TfidfVectorizer` with `norm=None` and `norm='l2'` |
 
 ## Experiments
 

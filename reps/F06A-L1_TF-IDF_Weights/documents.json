@@ -1,0 +1,88 @@
+{
+ "fixture": "F05-v1",
+ "created": "2026-10-03",
+ "description": "7 invented documents: versions of 6 invented knowledge-base records of an invented data-ingest service. Written by the authoring agent; no real project record or telemetry.",
+ "text_format": "plain text; sections are separated by one blank line; the first line of a section is its heading",
+ "fields": {
+  "doc_id": "stable ID of one document: record_id, a dot, v and the version number. A document's text never changes after it is written",
+  "record_id": "the record this document is a version of (F04's record_id). The curriculum calls this the source ID",
+  "version": "version number of the record that this document holds (F04's record_version)",
+  "arrival": "when the document enters the corpus in this notebook: 0 = the initial corpus, 1 = added in STATE 9, 2 = added in STATE 10",
+  "kind": "record kind: policy, runbook or feedback (metadata, not indexed)",
+  "valid_from": "date from which this version applies (metadata, not indexed)",
+  "title": "title of the record (metadata, not indexed in this module)",
+  "text": "the document text: the only field that is chunked and indexed"
+ },
+ "documents": [
+  {
+   "doc_id": "KB-0101.v1",
+   "record_id": "KB-0101",
+   "version": 1,
+   "arrival": 0,
+   "kind": "policy",
+   "valid_from": "2026-03-02",
+   "title": "Retry policy for the batch importer",
+   "text": "Scope\nThis record applies to the batch importer only. The streaming importer follows KB-0107.\n\nRule\nRetry a failed job at most 3 times. Wait 30 seconds between attempts.\n\nRationale\nTicket TR-0042 showed that more retries overload the job queue."
+  },
+  {
+   "doc_id": "KB-0107.v1",
+   "record_id": "KB-0107",
+   "version": 1,
+   "arrival": 0,
+   "kind": "policy",
+   "valid_from": "2026-03-09",
+   "title": "Failed messages in the streaming importer",
+   "text": "Scope\nThis record applies to the streaming importer only. The batch importer follows KB-0101.\n\nRule\nDo not retry a failed message. Send it to the dead-letter queue.\n\nRationale\nA retry would deliver the message out of order."
+  },
+  {
+   "doc_id": "KB-0112.v1",
+   "record_id": "KB-0112",
+   "version": 1,
+   "arrival": 0,
+   "kind": "policy",
+   "valid_from": "2026-04-20",
+   "title": "Deploy windows",
+   "text": "Scope\nThis record applies to the production environment only.\n\nRule\nDeploy on Tuesday and Thursday before 14:00. A deploy needs one reviewer.\n\nException\nThe staging environment can deploy on any day without a reviewer."
+  },
+  {
+   "doc_id": "KB-0120.v1",
+   "record_id": "KB-0120",
+   "version": 1,
+   "arrival": 0,
+   "kind": "runbook",
+   "valid_from": "2026-05-04",
+   "title": "Cache invalidation runbook",
+   "text": "Scope\nThis record applies to the metadata cache in production.\n\nProcedure\nSet cache.ttl_seconds to 0, then restart the cache workers one at a time.\n\nNotes\nSeen in build 0042 during work on TR-0043. Do not clear the cache during a deploy."
+  },
+  {
+   "doc_id": "KB-0131.v1",
+   "record_id": "KB-0131",
+   "version": 1,
+   "arrival": 0,
+   "kind": "feedback",
+   "valid_from": "2026-05-18",
+   "title": "Review feedback on the retry limit",
+   "text": "Context\nReview of TR-0042 for the batch importer.\n\nFeedback\nThe retry limit must be configurable. Move it to importer.max_retries before the next deploy."
+  },
+  {
+   "doc_id": "KB-0140.v1",
+   "record_id": "KB-0140",
+   "version": 1,
+   "arrival": 1,
+   "kind": "policy",
+   "valid_from": "2026-06-01",
+   "title": "Dead-letter queue retention",
+   "text": "Scope\nThis record applies to the dead-letter queue of the streaming importer.\n\nRule\nKeep a failed message for 14 days. Delete it after that."
+  },
+  {
+   "doc_id": "KB-0101.v2",
+   "record_id": "KB-0101",
+   "version": 2,
+   "arrival": 2,
+   "kind": "policy",
+   "valid_from": "2026-06-15",
+   "title": "Retry policy for the batch importer",
+   "text": "Scope\nThis record applies to the batch importer only. The streaming importer follows KB-0107.\n\nRule\nRetry a failed job at most 5 times. Wait 60 seconds between attempts.\n\nRationale\nTicket TR-0058 showed that the larger job queue can absorb 5 retries."
+  }
+ ]
+}
