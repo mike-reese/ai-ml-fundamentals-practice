@@ -1,0 +1,271 @@
+{
+ "fixture": "F06-v1",
+ "created": "2026-10-15",
+ "rule": "RJ-1",
+ "description": "Graded relevance judgments for the 8 validation queries of F05-v1 against the 5 documents of arrival 0 (40 pairs). Declared by the authoring agent under rule RJ-1 on invented text. Provisional until the learner reviews every grade in the notebook's review cell.",
+ "review_status": "provisional: author-declared, not reviewed",
+ "reviewer": null,
+ "review_date": null,
+ "binary_relevance_threshold": 2,
+ "unanswerable_policy": "a query with no grade >= 1 is unanswerable: recall@k, reciprocal rank and nDCG are undefined for it and excluded from means; precision@k is reported; its ranked list is printed",
+ "document_tasks": {
+  "KB-0101.v1": "t01",
+  "KB-0107.v1": "t01",
+  "KB-0112.v1": "t02",
+  "KB-0120.v1": "t03",
+  "KB-0131.v1": "t01"
+ },
+ "fields": {
+  "query_id": "F05-v1 validation query ID (vq1 to vq8)",
+  "doc_id": "F05-v1 document ID, arrival 0",
+  "grade": "relevance grade under RJ-1: 2 = holds the query's answer span (ES-1); 1 = about the query's task and holds no answer span; 0 = otherwise",
+  "reason": "the clause of RJ-1 that produced the grade"
+ },
+ "counts": {
+  "grade_2": 7,
+  "grade_1": 8,
+  "grade_0": 25
+ },
+ "judgments": [
+  {
+   "query_id": "vq1",
+   "doc_id": "KB-0101.v1",
+   "grade": 2,
+   "reason": "RJ-1 clause 2: holds the query's answer span under ES-1"
+  },
+  {
+   "query_id": "vq1",
+   "doc_id": "KB-0107.v1",
+   "grade": 1,
+   "reason": "RJ-1 clause 1: about the query's task t01 (document_tasks), holds no answer span"
+  },
+  {
+   "query_id": "vq1",
+   "doc_id": "KB-0112.v1",
+   "grade": 0,
+   "reason": "RJ-1 clause 0: neither holds the answer span nor is about the query's task"
+  },
+  {
+   "query_id": "vq1",
+   "doc_id": "KB-0120.v1",
+   "grade": 0,
+   "reason": "RJ-1 clause 0: neither holds the answer span nor is about the query's task"
+  },
+  {
+   "query_id": "vq1",
+   "doc_id": "KB-0131.v1",
+   "grade": 1,
+   "reason": "RJ-1 clause 1: about the query's task t01 (document_tasks), holds no answer span"
+  },
+  {
+   "query_id": "vq2",
+   "doc_id": "KB-0101.v1",
+   "grade": 1,
+   "reason": "RJ-1 clause 1: about the query's task t01 (document_tasks), holds no answer span"
+  },
+  {
+   "query_id": "vq2",
+   "doc_id": "KB-0107.v1",
+   "grade": 2,
+   "reason": "RJ-1 clause 2: holds the query's answer span under ES-1"
+  },
+  {
+   "query_id": "vq2",
+   "doc_id": "KB-0112.v1",
+   "grade": 0,
+   "reason": "RJ-1 clause 0: neither holds the answer span nor is about the query's task"
+  },
+  {
+   "query_id": "vq2",
+   "doc_id": "KB-0120.v1",
+   "grade": 0,
+   "reason": "RJ-1 clause 0: neither holds the answer span nor is about the query's task"
+  },
+  {
+   "query_id": "vq2",
+   "doc_id": "KB-0131.v1",
+   "grade": 1,
+   "reason": "RJ-1 clause 1: about the query's task t01 (document_tasks), holds no answer span"
+  },
+  {
+   "query_id": "vq3",
+   "doc_id": "KB-0101.v1",
+   "grade": 0,
+   "reason": "RJ-1 clause 0: neither holds the answer span nor is about the query's task"
+  },
+  {
+   "query_id": "vq3",
+   "doc_id": "KB-0107.v1",
+   "grade": 0,
+   "reason": "RJ-1 clause 0: neither holds the answer span nor is about the query's task"
+  },
+  {
+   "query_id": "vq3",
+   "doc_id": "KB-0112.v1",
+   "grade": 2,
+   "reason": "RJ-1 clause 2: holds the query's answer span under ES-1"
+  },
+  {
+   "query_id": "vq3",
+   "doc_id": "KB-0120.v1",
+   "grade": 0,
+   "reason": "RJ-1 clause 0: neither holds the answer span nor is about the query's task"
+  },
+  {
+   "query_id": "vq3",
+   "doc_id": "KB-0131.v1",
+   "grade": 0,
+   "reason": "RJ-1 clause 0: neither holds the answer span nor is about the query's task"
+  },
+  {
+   "query_id": "vq4",
+   "doc_id": "KB-0101.v1",
+   "grade": 0,
+   "reason": "RJ-1 clause 0: neither holds the answer span nor is about the query's task"
+  },
+  {
+   "query_id": "vq4",
+   "doc_id": "KB-0107.v1",
+   "grade": 0,
+   "reason": "RJ-1 clause 0: neither holds the answer span nor is about the query's task"
+  },
+  {
+   "query_id": "vq4",
+   "doc_id": "KB-0112.v1",
+   "grade": 0,
+   "reason": "RJ-1 clause 0: neither holds the answer span nor is about the query's task"
+  },
+  {
+   "query_id": "vq4",
+   "doc_id": "KB-0120.v1",
+   "grade": 2,
+   "reason": "RJ-1 clause 2: holds the query's answer span under ES-1"
+  },
+  {
+   "query_id": "vq4",
+   "doc_id": "KB-0131.v1",
+   "grade": 0,
+   "reason": "RJ-1 clause 0: neither holds the answer span nor is about the query's task"
+  },
+  {
+   "query_id": "vq5",
+   "doc_id": "KB-0101.v1",
+   "grade": 1,
+   "reason": "RJ-1 clause 1: about the query's task t01 (document_tasks), holds no answer span"
+  },
+  {
+   "query_id": "vq5",
+   "doc_id": "KB-0107.v1",
+   "grade": 2,
+   "reason": "RJ-1 clause 2: holds the query's answer span under ES-1"
+  },
+  {
+   "query_id": "vq5",
+   "doc_id": "KB-0112.v1",
+   "grade": 0,
+   "reason": "RJ-1 clause 0: neither holds the answer span nor is about the query's task"
+  },
+  {
+   "query_id": "vq5",
+   "doc_id": "KB-0120.v1",
+   "grade": 0,
+   "reason": "RJ-1 clause 0: neither holds the answer span nor is about the query's task"
+  },
+  {
+   "query_id": "vq5",
+   "doc_id": "KB-0131.v1",
+   "grade": 1,
+   "reason": "RJ-1 clause 1: about the query's task t01 (document_tasks), holds no answer span"
+  },
+  {
+   "query_id": "vq6",
+   "doc_id": "KB-0101.v1",
+   "grade": 0,
+   "reason": "RJ-1 edge case E1: the query has no answer span in the corpus (unanswerable), so every grade is 0"
+  },
+  {
+   "query_id": "vq6",
+   "doc_id": "KB-0107.v1",
+   "grade": 0,
+   "reason": "RJ-1 edge case E1: the query has no answer span in the corpus (unanswerable), so every grade is 0"
+  },
+  {
+   "query_id": "vq6",
+   "doc_id": "KB-0112.v1",
+   "grade": 0,
+   "reason": "RJ-1 edge case E1: the query has no answer span in the corpus (unanswerable), so every grade is 0"
+  },
+  {
+   "query_id": "vq6",
+   "doc_id": "KB-0120.v1",
+   "grade": 0,
+   "reason": "RJ-1 edge case E1: the query has no answer span in the corpus (unanswerable), so every grade is 0"
+  },
+  {
+   "query_id": "vq6",
+   "doc_id": "KB-0131.v1",
+   "grade": 0,
+   "reason": "RJ-1 edge case E1: the query has no answer span in the corpus (unanswerable), so every grade is 0"
+  },
+  {
+   "query_id": "vq7",
+   "doc_id": "KB-0101.v1",
+   "grade": 0,
+   "reason": "RJ-1 clause 0: neither holds the answer span nor is about the query's task"
+  },
+  {
+   "query_id": "vq7",
+   "doc_id": "KB-0107.v1",
+   "grade": 0,
+   "reason": "RJ-1 clause 0: neither holds the answer span nor is about the query's task"
+  },
+  {
+   "query_id": "vq7",
+   "doc_id": "KB-0112.v1",
+   "grade": 2,
+   "reason": "RJ-1 clause 2: holds the query's answer span under ES-1"
+  },
+  {
+   "query_id": "vq7",
+   "doc_id": "KB-0120.v1",
+   "grade": 0,
+   "reason": "RJ-1 clause 0: neither holds the answer span nor is about the query's task"
+  },
+  {
+   "query_id": "vq7",
+   "doc_id": "KB-0131.v1",
+   "grade": 0,
+   "reason": "RJ-1 clause 0: neither holds the answer span nor is about the query's task"
+  },
+  {
+   "query_id": "vq8",
+   "doc_id": "KB-0101.v1",
+   "grade": 2,
+   "reason": "RJ-1 clause 2: holds the query's answer span under ES-1"
+  },
+  {
+   "query_id": "vq8",
+   "doc_id": "KB-0107.v1",
+   "grade": 1,
+   "reason": "RJ-1 clause 1: about the query's task t01 (document_tasks), holds no answer span"
+  },
+  {
+   "query_id": "vq8",
+   "doc_id": "KB-0112.v1",
+   "grade": 0,
+   "reason": "RJ-1 clause 0: neither holds the answer span nor is about the query's task"
+  },
+  {
+   "query_id": "vq8",
+   "doc_id": "KB-0120.v1",
+   "grade": 0,
+   "reason": "RJ-1 clause 0: neither holds the answer span nor is about the query's task"
+  },
+  {
+   "query_id": "vq8",
+   "doc_id": "KB-0131.v1",
+   "grade": 1,
+   "reason": "RJ-1 clause 1: about the query's task t01 (document_tasks), holds no answer span"
+  }
+ ]
+}
